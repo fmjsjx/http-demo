@@ -1,0 +1,33 @@
+shards:
+- slots: []
+  videos:
+  # 1 通用强制广告
+  - id: 1
+    name: force_video
+  # 2 看广告获得绳索
+  - id: 2
+    name: rope
+    bonus:
+    # 绳索 x 5
+    - item: 100003
+      num: 5
+    source-id: 502
+    remark: '[绳索]看广告得绳索'
+  # 3 每日礼包 每日限领1次
+  #- id: 3
+  #  name: daily_gift
+  #  bonus:
+  #  - item: 100001
+  #    num: 100
+  #  source-id: 504
+  #  remark: '[每日礼包]看广告得每日礼包'
+  #  daily-limit: 1
+  # 4 新人福利 限领1次 100积分
+  #- id: 4
+  #  name: rookie_gift
+  #  bonus:
+  #  - item: 100002
+  #    num: 100
+  #  source-id: 505
+  #  remark: '[新人福利]看广告得新人福利'
+  #  limit: 1

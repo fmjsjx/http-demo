@@ -1,0 +1,17 @@
+# 系统设置
+system:
+  # 是否启用账号缓存，默认启用
+  use-account-cache: false
+  # 是否启用玩家数据缓存，默认禁用
+  use-player-cache: true
+  # 玩家数据缓存模式，仅在启用玩家数据缓存时生效
+  # 目前支持local（本地内存缓存）和redis（redis缓存）模式
+  player-cache-mode: redis
+  # 是否启用玩家数据强同步，仅在启用玩家数据本地内存缓存时生效，默认禁用
+  player-sync-forcedly: true
+# 提现配置
+cash:
+  # 是否启用游客提现（测试），默认禁用
+  guest-enabled: true
+  # 游客提现成功率（%），仅在启用游客提现时生效，默认0
+  guest-success-rate: 100

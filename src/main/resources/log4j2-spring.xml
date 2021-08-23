@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+  <Properties>
+    <Property name="PID">????</Property>
+    <Property name="LOG_EXCEPTION_CONVERSION_WORD">%xwEx</Property>
+    <Property name="LOG_LEVEL_PATTERN">%5p</Property>
+    <Property name="LOG_DATEFORMAT_PATTERN">yyyy-MM-dd HH:mm:ss.SSS</Property>
+    <Property name="CONSOLE_LOG_PATTERN">%clr{%d{${LOG_DATEFORMAT_PATTERN}}}{faint} %clr{${LOG_LEVEL_PATTERN}} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+    <Property name="FILE_LOG_PATTERN">%d{${LOG_DATEFORMAT_PATTERN}} ${LOG_LEVEL_PATTERN} ${sys:PID} --- [%t] %-40.40c{1.} : %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+    
+    <Property name="FILE_LOG_DIR">logs</Property>
+    
+    <Property name="ROLLING_LOG_FILE_NAME">${FILE_LOG_DIR}/http-demo.log</Property>
+    <Property name="ROLLING_LOG_FILE_PATTERN">${FILE_LOG_DIR}/history/http-demo-%d{yyyy-MM-dd}.log.gz</Property>
+    <Property name="ROLLING_LOG_PATTERN">${FILE_LOG_PATTERN}</Property>
+    
+    <Property name="ACCESS_LOG_FILE_NAME">${FILE_LOG_DIR}/access.log</Property>
+    <Property name="ACCESS_LOG_FILE_PATTERN">${FILE_LOG_DIR}/access/access-%d{yyyy-MM-dd}.log.gz</Property>
+    <Property name="ACCESS_LOG_PATTERN">%d{${LOG_DATEFORMAT_PATTERN}} ${LOG_LEVEL_PATTERN} ${sys:PID} --- [%t] : %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+    
+    <Property name="ITEM_LOGS_FILE_NAME">${FILE_LOG_DIR}/biz/item.log</Property>
+    <Property name="ITEM_LOGS_FILE_PATTERN">${FILE_LOG_DIR}/biz/history/item-%d{yyyy-MM-dd}.log.gz</Property>
+    <Property name="ITEM_LOGS_PATTERN">%m%n</Property>
+
+    <Property name="EVENT_LOGS_FILE_NAME">${FILE_LOG_DIR}/biz/event.log</Property>
+    <Property name="EVENT_LOGS_FILE_PATTERN">${FILE_LOG_DIR}/biz/history/event-%d{yyyy-MM-dd}.log.gz</Property>
+    <Property name="EVENT_LOGS_PATTERN">%m%n</Property>
+    
+    <Property name="ERROR_LOG_FILE_NAME">${FILE_LOG_DIR}/error.log</Property>
+    <Property name="ERROR_LOG_FILE_PATTERN">${FILE_LOG_DIR}/history/error-%d{yyyy-MM-dd}.log.gz</Property>
+    <Property name="ERROR_LOG_PATTERN">${FILE_LOG_PATTERN}</Property>
+
+    <Property name="SDK_WECHAT_LOG_FILE_NAME">${FILE_LOG_DIR}/sdk/wechat.log</Property>
+    <Property name="SDK_WECHAT_LOG_FILE_PATTERN">${FILE_LOG_DIR}/sdk/history/wechat-%d{yyyy-MM-dd}.log.gz</Property>
+    <Property name="SDK_WECHAT_LOG_PATTERN">%d{${LOG_DATEFORMAT_PATTERN}} [%p] ${sys:PID} --- [%t] %m%n</Property>
+
+  </Properties>
+
+  <Appenders>
+
+    <Console name="Console" target="SYSTEM_OUT" follow="true">
+      <PatternLayout pattern="${sys:CONSOLE_LOG_PATTERN}" />
+    </Console>
+
+    <RollingRandomAccessFile name="RollingLogRollingFile" fileName="${ROLLING_LOG_FILE_NAME}"
+      filePattern="${ROLLING_LOG_FILE_PATTERN}" immediateFlush="false">
+      <PatternLayout pattern="${ROLLING_LOG_PATTERN}" />
+      <Policies>
+        <TimeBasedTriggeringPolicy />
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${FILE_LOG_DIR}" maxDepth="2">
+          <IfFileName glob="history/http-demo-*.log.gz" />
+          <IfLastModified age="30d" />
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingRandomAccessFile>
+
+    <RollingRandomAccessFile name="AccessLogRollingFile" fileName="${ACCESS_LOG_FILE_NAME}"
+      filePattern="${ACCESS_LOG_FILE_PATTERN}" immediateFlush="false">
+      <PatternLayout pattern="${ACCESS_LOG_PATTERN}" />
+      <Policies>
+        <TimeBasedTriggeringPolicy />
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${FILE_LOG_DIR}" maxDepth="2">
+          <IfFileName glob="history/access-*.log.gz" />
+          <IfLastModified age="30d" />
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingRandomAccessFile>
+
+    <RollingRandomAccessFile name="ErrorLogRollingFile" fileName="${ERROR_LOG_FILE_NAME}"
+      filePattern="${ERROR_LOG_FILE_PATTERN}" immediateFlush="false">
+      <PatternLayout pattern="${ERROR_LOG_PATTERN}" />
+      <ThresholdFilter level="ERROR" />
+      <Policies>
+        <TimeBasedTriggeringPolicy />
+      </Policies>
+    </RollingRandomAccessFile>
+
+    <!-- 
+    <RollingRandomAccessFile name="SdkWechatLogRollingFile" fileName="${SDK_WECHAT_LOG_FILE_NAME}"
+      filePattern="${SDK_WECHAT_LOG_FILE_PATTERN}" immediateFlush="false">
+      <PatternLayout pattern="${SDK_WECHAT_LOG_PATTERN}" />
+      <Policies>
+        <TimeBasedTriggeringPolicy />
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${FILE_LOG_DIR}" maxDepth="3">
+          <IfFileName glob="sdk/history/wechat-*.log.gz" />
+          <IfLastModified age="30d" />
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingRandomAccessFile>
+     -->
+
+    <RollingRandomAccessFile name="ItemLogsRollingFile" fileName="${ITEM_LOGS_FILE_NAME}"
+      filePattern="${ITEM_LOGS_FILE_PATTERN}" immediateFlush="false">
+      <PatternLayout pattern="${ITEM_LOGS_PATTERN}" />
+      <Policies>
+        <TimeBasedTriggeringPolicy />
+      </Policies>
+    </RollingRandomAccessFile>
+
+    <RollingRandomAccessFile name="EventLogsRollingFile" fileName="${EVENT_LOGS_FILE_NAME}"
+      filePattern="${EVENT_LOGS_FILE_PATTERN}" immediateFlush="false">
+      <PatternLayout pattern="${EVENT_LOGS_PATTERN}" />
+      <Policies>
+        <TimeBasedTriggeringPolicy />
+      </Policies>
+    </RollingRandomAccessFile>
+
+  </Appenders>
+  
+  <Loggers>
+    <AsyncLogger name="org.springframework.boot" level="info" includeLocation="false" />
+    <AsyncLogger name="com.github.fmjsjx.demo.http" level="info" includeLocation="false" />
+    <AsyncLogger name="com.github.fmjsjx" level="info" includeLocation="false" />
+    
+    <AsyncLogger name="accessLogger" level="info" includeLocation="false" additivity="false">
+      <AppenderRef ref="AccessLogRollingFile" />
+    </AsyncLogger>
+    
+    <AsyncLogger name="sdkWechatLogger" level="off" includeLocation="false" additivity="false" />
+    <!--
+    <AsyncLogger name="sdkWechatLogger" level="info" includeLocation="false" additivity="false">
+      <AppenderRef ref="SdkWechatLogRollingFile" />
+    </AsyncLogger>
+     -->
+    
+    <AsyncLogger name="itemLogger" level="info" includeLocation="false" additivity="false">
+      <AppenderRef ref="ItemLogsRollingFile" />
+    </AsyncLogger>
+    
+    <AsyncLogger name="eventLogger" level="info" includeLocation="false" additivity="false">
+      <AppenderRef ref="EventLogsRollingFile" />
+    </AsyncLogger>
+
+    <AsyncRoot level="warn">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="RollingLogRollingFile" />
+      <AppenderRef ref="ErrorLogRollingFile" />
+    </AsyncRoot>
+  </Loggers>
+
+</Configuration>

@@ -1,0 +1,52 @@
+shards:
+- slots: []
+  policies:
+    # 全局（其他）奖励
+    global:
+      default-bonus:
+        item: 100001
+        min: 1
+        max: 1
+      policies:
+      - lt: 8000
+        bonus:
+          item: 100001
+          min: 50
+          max: 100
+      - lt: 14000
+        bonus:
+          item: 100001
+          min: 25
+          max: 50
+      - lt: 19000
+        bonus:
+          item: 100001
+          min: 1
+          max: 25
+    # 红包牛
+    red-packet-cattle:
+      default-bonus:
+        item: 100001
+        min: 1
+        max: 10
+      policies:
+      - lt: 10001
+        bonus:
+          item: 100001
+          min: 30
+          max: 100
+      - lt: 15001
+        bonus:
+          item: 100001
+          min: 10
+          max: 50
+      - lt: 19001
+        bonus:
+          item: 100001
+          min: 10
+          max: 30
+      - lt: 20001
+        bonus:
+          item: 100001
+          min: 1
+          max: 30

@@ -1,0 +1,43 @@
+logging:
+  level:
+    '[com.github.fmjsjx.demo.http]': debug
+    '[com.github.fmjsjx]': debug
+
+server:
+  io-threads: 1
+  ssl:
+    enabled: false
+  http-client-mode: simple
+
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/http_demo_db?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false&useServerPrepStmts=true&cachePrepStmts=true&prepStmtCacheSize=500&prepStmtCacheSqlLimit=2048
+    username: root
+    password: YourPassword$123456
+    hikari:
+      auto-commit: true
+      minimum-idle: 1
+      maximum-pool-size: 8
+      connection-test-query: SELECT 'x'
+
+myboot:
+# Redis Lettuce Clients
+  redis:
+    lettuce:
+      client:
+        connections:
+        - name: global
+          uri: redis://127.0.0.1:6379/1
+        - name: logging
+          uri: redis://127.0.0.1:6379/0
+        - name: activity
+          uri: redis://127.0.0.1:6379/1
+# MongoDB
+  mongodb:    clients:    - name: game
+      driver: sync
+      primary: true
+      uri: mongodb://127.0.0.1:27017
+      databases:      - name: http_demo_db
+        id: game1
+      - name: http_demo_db
+        id: game2

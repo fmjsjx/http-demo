@@ -1,0 +1,35 @@
+shards:
+- slots: []
+  # 配置版本
+  version: 1
+  # 是否禁用积分提现，默认：1
+  #disabled: 1
+  # 金额 100元
+  amount: 10000
+  # 任务总共3个阶段
+  stages:
+  # 阶段1 10000积分
+  - id: 1
+    # 进度条件类型，枚举：
+    #   score           => 积分
+    #   login-days      => 登录天数
+    #   continuous-days => 连续登录天数
+    #   gaming-days     => 连续游戏天数
+    #   video-count     => 看广告次数
+    condition-type: score
+    # 进度模式，枚举：
+    #   direct => 直接使用累计数据
+    #   reset  => 从0开始累计
+    # 默认：direct
+    #progress-mode: direct
+    # 进度最大值
+    max: 1000000
+  # 阶段2 连续登录7天 从头计算
+  - id: 2
+    condition-type: continuous-days
+    progress-mode: reset
+    max: 7
+  # 阶段3 累计观看8888广告
+  - id: 3
+    condition-type: video-count
+    max: 8888

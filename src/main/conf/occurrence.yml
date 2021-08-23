@@ -1,0 +1,16 @@
+shards:
+- slots: []
+  occurrences:
+    # 红包牛出现概率
+    cattle-red-packet:
+      #default-rate: 25
+      default-rate: 0
+      policies: []
+      #- lt: 10001
+      #  rate: 85
+      #- lt: 15001
+      #  rate: 65
+      #- lt: 19001
+      #  rate: 55
+      #- lt: 20001
+      #  rate: 35

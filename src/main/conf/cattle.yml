@@ -1,0 +1,218 @@
+shards:
+- slots: []
+  score-modes:
+  # 小于10000，随机 100%
+  - lt: 1000000
+    mode: random
+  # 小于15000分，随机 95%
+  - lt: 1500000
+    mode: random
+    percent: 95
+  # 小于20000分，随机 90%
+  - lt: 2000000
+    mode: random
+    percent: 90
+  # 小于25000分，随机 85%
+  - lt: 2500000
+    mode: random
+    percent: 85
+  # 小于30000分，随机 80%
+  - lt: 3000000
+    mode: random
+    percent: 80
+  # 小于35000分，随机 75%
+  - lt: 3500000
+    mode: random
+    percent: 75
+  # 小于40000分，随机 70%
+  - lt: 4000000
+    mode: random
+    percent: 70
+  # 小于45000分，随机 60%
+  - lt: 4500000
+    mode: random
+    percent: 60
+  # 小于49000分，最小档位
+  - lt: 4900000
+    mode: min
+  # 没有红包牛，忽略
+  score-modes-0:
+  - lt: 5000
+    mode: min
+  - lt: 99999999
+    mode: max
+  # 拉回几率参数
+  capture-coefficients:
+  # 5000以下 100%
+  - lt: 500000
+    coefficient: 100
+  # 5000 ~ 15000 75%
+  - lt: 1500000
+    coefficient: 75
+  # 15000 ~ 20000 50%
+  - lt: 2000000
+    coefficient: 50
+  # 20000 ~ 30000 60%
+  - lt: 3000000
+    coefficient: 60
+  # 30000 ~ 40000 45%
+  - lt: 4000000
+    coefficient: 45
+  # 40000 ~ 47000 25%
+  - lt: 4000000
+    coefficient: 25
+  # 47000 ~ 99999 10%
+  - lt: 99999999
+    coefficient: 10
+  # 47000积分后不再强判3绳索必中
+  triple-limit: 4700000
+  # 强校验，无用忽略
+  force-validation: true
+  # 牛配置
+  cattles:
+  # 0号牛是红包牛，目前没有红包牛，忽略
+  - id: 0
+    score:
+      min: 1
+      max: 999900
+    capture-probability: 50
+  # 1号牛
+  - id: 1
+    # 1 ~ 50
+    score:
+      min: 100
+      max: 5000
+    capture-probability: 65
+  # 2号牛
+  - id: 2
+    # 2 ~ 50
+    score:
+      min: 200
+      max: 5000
+    capture-probability: 65
+  # 3号牛
+  - id: 3
+    # 3 ~ 50
+    score:
+      min: 300
+      max: 5000
+    capture-probability: 65
+  # 4号牛
+  - id: 4
+    # 4 ~ 50
+    score:
+      min: 400
+      max: 5000
+    capture-probability: 65
+  # 5号牛
+  - id: 5
+    # 5 ~ 50
+    score:
+      min: 500
+      max: 5000
+    capture-probability: 65
+  # 6号牛
+  - id: 6
+    # 1 ~ 100
+    score:
+      min: 100
+      max: 10000
+    capture-probability: 55
+  # 7号牛
+  - id: 7
+    # 2 ~ 200
+    score:
+      min: 100
+      max: 10000
+    capture-probability: 55
+  # 8号牛
+  - id: 8
+    # 3 ~ 100
+    score:
+      min: 300
+      max: 10000
+    capture-probability: 55
+  # 9号牛
+  - id: 9
+    # 4 ~ 100
+    score:
+      min: 400
+      max: 10000
+    capture-probability: 50
+  # 10号牛
+  - id: 10
+    # 5 ~ 100
+    score:
+      min: 500
+      max: 10000
+    capture-probability: 50
+  # 11号牛
+  - id: 11
+    # 1 ~ 300
+    score:
+      min: 100
+      max: 20000
+    capture-probability: 40
+  # 12号牛
+  - id: 12
+    # 2 ~ 300
+    score:
+      min: 200
+      max: 20000
+    capture-probability: 40
+  # 13号牛
+  - id: 13
+    # 3 ~ 300
+    score:
+      min: 300
+      max: 20000
+    capture-probability: 40
+  # 14号牛
+  - id: 14
+    # 4 ~ 300
+    score:
+      min: 400
+      max: 30000
+    capture-probability: 40
+  # 15号牛
+  - id: 15
+    # 5 ~ 300
+    score:
+      min: 500
+      max: 30000
+    capture-probability: 40
+  # 16号牛
+  - id: 16
+    # 1 ~ 500
+    score:
+      min: 100
+      max: 30000
+    capture-probability: 35
+  # 17号牛
+  - id: 17
+    # 2 ~ 500
+    score:
+      min: 200
+      max: 50000
+    capture-probability: 35
+  # 18号牛
+  - id: 18
+    # 3 ~ 5000
+    score:
+      min: 300
+      max: 50000
+    capture-probability: 35
+  # 19号牛
+  - id: 19
+    # 4 ~ 1000
+    score:
+      min: 400
+      max: 80000
+    capture-probability: 30
+  # 20号牛
+  - id: 20
+    # 5 ~ 1000
+    score:
+      min: 500
+      max: 100000
+    capture-probability: 30

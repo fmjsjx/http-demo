@@ -1,0 +1,165 @@
+package: com.github.fmjsjx.demo.http.entity.model
+
+objects:
+- name: Player
+  type: root
+  fields:
+  - name: uid
+    bname: _id
+    type: int
+    required: true
+  - name: preferences
+    bname: pfc
+    type: object
+    model: PreferencesInfo
+  - name: basic
+    bname: bsc
+    type: object
+    model: BasicInfo
+  - name: login
+    bname: lgn
+    type: object
+    model: LoginInfo
+  - name: guide
+    bname: gd
+    type: object
+    model: GuideInfo
+  - name: wallet
+    bname: wlt
+    type: object
+    model: WalletInfo
+  - name: items
+    bname: itm
+    type: simple-map
+    key: int
+    value: int
+  - name: videos
+    bname: vds
+    type: object
+    model: VideosInfo
+  - name: daily
+    bname: dly
+    type: object
+    model: DailyInfo
+  - name: updateVersion
+    bname: _uv
+    type: int
+    increase: true
+    json-ignore: true
+  - name: createTime
+    bname: _ct
+    type: datetime
+    json-ignore: true
+  - name: updateTime
+    bname: _ut
+    type: datetime
+    json-ignore: true
+- name: PreferencesInfo
+  type: object
+  fields:
+  - name: custom
+    bname: ctm
+    type: string
+- name: BasicInfo
+  type: object
+  fields:
+  - name: nickname
+    bname: nn
+    type: string
+  - name: faceId
+    bname: fi
+    type: int
+  - name: faceUrl
+    bname: fu
+    type: string
+- name: LoginInfo
+  type: object
+  fields:
+  - name: count
+    bname: cnt
+    type: int
+    increase: true
+  - name: days
+    bname: d
+    type: int
+    increase: true
+  - name: continuousDays
+    bname: cnd
+    type: int
+    increase: true
+  - name: maxContinuousDays
+    bname: mcd
+    type: int
+  - name: gamingDays
+    bname: gmd
+    type: int
+    increase: true
+  - name: maxGamingDays
+    bname: mgd
+    type: int
+  - name: ip
+    type: string
+  - name: loginTime
+    bname: lgt
+    type: datetime
+    json-ignore: true
+- name: GuideInfo
+  type: object
+  fields:
+  - name: status
+    bname: s
+    type: int
+- name: WalletInfo
+  type: object
+  fields:
+  - name: coinTotal
+    bname: ct
+    type: int
+  - name: coinUsed
+    bname: cu
+    type: int
+    json-ignore: true
+  - name: coin
+    virtual: true
+    type: int
+    sources: [coinTotal, coinUsed]
+    formula: coinTotal - coinUsed
+  - name: diamond
+    bname: d
+    type: int
+- name: VideosInfo
+  type: object
+  fields:
+  - name: count
+    bname: cnt
+    type: int
+    increase: true
+  - name: counts
+    bname: cns
+    type: simple-map
+    key: int
+    value: int
+    json-ignore: true
+- name: DailyInfo
+  type: object
+  fields:
+  - name: day
+    type: date
+    json-ignore: true
+    required: true
+  - name: coin
+    bname: cn
+    type: int
+  - name: diamond
+    bname: dm
+    type: int
+  - name: videoCount
+    bname: vdc
+    type: int
+    increase: true
+  - name: videoCounts
+    bname: vdcs
+    type: simple-map
+    json-ignore: true
+    key: int
+    value: int

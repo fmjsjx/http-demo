@@ -1,0 +1,581 @@
+openapi: 3.0.0
+info:
+  version: '1.0.x'
+  title: 'Game Demo HTTP Server'
+  description: 'DEMO游戏RESTful API文档.'
+  
+tags:
+- name: auth
+  description: '登录相关API，不用添加header头x-token'
+- name: player
+  description: '玩家相关API'
+- name: preferences
+  description: '偏好设置API'
+- name: video
+  description: '视频广告奖励API'
+  
+servers:
+- url: 'http://127.0.0.1:12001'
+  description: '本机开发环境地址'
+
+paths:
+  /api/auth/guest/login:
+    post:
+      tags:
+      - auth
+      summary: '玩家游客登录'
+      operationId: postGuestLogin
+      requestBody:
+        description: 入参
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuestLoginParams'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    $ref: '#/components/schemas/ResultCode'
+                  message:
+                    type: string
+                    description: 异常信息 仅在code不为0时出现
+                    example: '异常信息 仅在code不为0时出现'
+                  data:
+                    type: object
+                    description: 返回数据
+                    properties:
+                      result:
+                        $ref: '#/components/schemas/GuestLoginResult'
+                      sync:
+                        $ref: '#/components/schemas/Player'
+  /api/auth/wechat/login:
+    post:
+      tags:
+      - auth
+      summary: '玩家微信登录'
+      operationId: postWeChatLogin
+      requestBody:
+        description: 入参
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeChatLoginParams'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    $ref: '#/components/schemas/ResultCode'
+                  message:
+                    type: string
+                    description: 异常信息 仅在code不为0时出现
+                    example: '异常信息 仅在code不为0时出现'
+                  data:
+                    type: object
+                    description: 返回数据
+                    properties:
+                      result:
+                        $ref: '#/components/schemas/WeChatLoginResult'
+                      sync:
+                        $ref: '#/components/schemas/Player'
+  /api/players/@self:
+    get:
+      tags:
+      - player
+      summary: '获取（同步）玩家信息'
+      operationId: getPlayer
+      parameters:
+      - name: 'x-token'
+        required: true
+        in: header
+        schema:
+          type: string
+        description: token
+        example: 'd6920cc708694fa09b44c011a8288dbf'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    $ref: '#/components/schemas/ResultCode'
+                  message:
+                    type: string
+                    description: 异常信息 仅在code不为0时出现
+                    example: '异常信息 仅在code不为0时出现'
+                  data:
+                    type: object
+                    description: 返回数据
+                    properties:
+                      result:
+                        type: object
+                        example: {}
+                      sync:
+                        $ref: '#/components/schemas/Player'
+                      force:
+                        type: integer
+                        description: 恒等于1
+                        example: 1
+  /api/players/@self/arcodes:
+    post:
+      tags:
+      - player
+      summary: '获取一个新的广告奖励验证码'
+      operationId: postArcodes
+      parameters:
+      - name: 'x-token'
+        required: true
+        in: header
+        schema:
+          type: string
+        description: token
+        example: 'd6920cc708694fa09b44c011a8288dbf'
+      requestBody:
+        description: 入参
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                advertId:
+                  type: integer
+                  description: 广告点ID
+                  example: 1234
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    $ref: '#/components/schemas/ResultCode'
+                  message:
+                    type: string
+                    description: 异常信息 仅在code不为0时出现
+                    example: '异常信息 仅在code不为0时出现'
+                  data:
+                    type: object
+                    description: 返回数据
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          arcode:
+                            type: string
+                            description: 广告奖励验证码
+                            example: a1cf8934
+  /api/players/@self/preferences/custom:
+    get:
+      tags:
+      - preferences
+      summary: 获取客户端自定义字段内容
+      operationId: getPreferencesCustom
+      parameters:
+      - name: 'x-token'
+        required: true
+        in: header
+        schema:
+          type: string
+        description: token
+        example: 'd6920cc708694fa09b44c011a8288dbf'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    $ref: '#/components/schemas/ResultCode'
+                  message:
+                    type: string
+                    description: 异常信息 仅在code不为0时出现
+                    example: '异常信息 仅在code不为0时出现'
+                  data:
+                    type: object
+                    description: 返回数据
+                    properties:
+                      result:
+                        type: string
+                        description: 返回结果就是客户端自定义字段内容
+                        example: '{\"key\":\"value\"}'
+                      sync:
+                        $ref: '#/components/schemas/Player'
+    put:
+      tags:
+      - preferences
+      summary: 修改客户端自定义字段内容
+      operationId: putPreferencesCustom
+      parameters:
+      - name: 'x-token'
+        required: true
+        in: header
+        schema:
+          type: string
+        description: token
+        example: 'd6920cc708694fa09b44c011a8288dbf'
+      requestBody:
+        description: 户端自定义字段内容
+        content:
+          application/json:
+            schema:
+              type: object
+              description: 可以是JSON object
+              example: {}
+          text/plain:
+            schema:
+              type: string
+              description: 字符串
+              example: '{"key":"value"}'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    $ref: '#/components/schemas/ResultCode'
+                  message:
+                    type: string
+                    description: 异常信息 仅在code不为0时出现
+                    example: '异常信息 仅在code不为0时出现'
+                  data:
+                    type: object
+                    description: 返回数据
+                    properties:
+                      result:
+                        type: string
+                        description: 返回结果就是客户端自定义字段内容
+                        example: '{"key":"value"}'
+                      sync:
+                        $ref: '#/components/schemas/Player'
+  /api/videos/{videoId}:
+    get:
+      tags:
+      - video
+      summary: '获得指定广告奖励ID信息'
+      operationId: getVideo
+      parameters:
+      - name: 'x-token'
+        required: true
+        in: header
+        schema:
+          type: string
+        description: token
+        example: 'd6920cc708694fa09b44c011a8288dbf'
+      - name: videoId
+        required: true
+        in: path
+        schema:
+          type: integer
+        description: 广告奖励ID
+        example: 1
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    $ref: '#/components/schemas/ResultCode'
+                  message:
+                    type: string
+                    description: 异常信息 仅在code不为0时出现
+                    example: '异常信息 仅在code不为0时出现'
+                  data:
+                    type: object
+                    description: 返回数据
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            description: 广告奖励ID
+                            example: 1
+                          remaining:
+                            type: integer
+                            description: 奖励可领取次数（-1表示不限，可能是每日次数，也可能是永久次数）
+                            example: -1
+                          bonus:
+                            $ref: '#/components/schemas/Bonus'
+  /api/videos/{videoId}/bonus:
+    post:
+      tags:
+      - video
+      summary: '领取指定看广告奖励'
+      operationId: postVideoBonus
+      parameters:
+      - name: 'x-token'
+        required: true
+        in: header
+        schema:
+          type: string
+        description: token
+        example: 'd6920cc708694fa09b44c011a8288dbf'
+      - name: videoId
+        required: true
+        in: path
+        schema:
+          type: integer
+        description: 广告奖励ID
+        example: 1
+      requestBody:
+        description: 入参
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArcodeParams'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    $ref: '#/components/schemas/ResultCode'
+                  message:
+                    type: string
+                    description: 异常信息 仅在code不为0时出现
+                    example: '异常信息 仅在code不为0时出现'
+                  data:
+                    type: object
+                    description: 返回数据
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            description: 广告奖励ID
+                            example: 1
+                          remaining:
+                            type: integer
+                            description: 奖励可领取次数（-1表示不限，可能是每日次数，也可能是永久次数）
+                            example: -1
+                          bonus:
+                            $ref: '#/components/schemas/Bonus'
+components:
+  schemas:
+    ResultCode:
+      type: integer
+      description: 结果码 0为正常 不为0就是异常
+      example: 0
+    FeatureCodes:
+      type: array
+      description: 支持的扩展功能代号集合
+      example: []
+      items:
+        type: string
+        description: 功能代号
+    ItemBox:
+      type: object
+      description: 一种物品
+      properties:
+        item:
+          type: integer
+          description: 物品ID
+          example: 100001
+        num:
+          type: integer
+          description: 数量
+          example: 1
+    Bonus:
+      type: array
+      description: 奖励列表
+      example: [{"item":100001,"num":1}]
+      items:
+        $ref: '#/components/schemas/ItemBox'
+    CostList:
+      type: array
+      description: 消耗物品列表
+      example: [{"item":100003,"num":-1}]
+      items:
+        $ref: '#/components/schemas/ItemBox'
+    ArcodeParams:
+      type: object
+      description: 广告奖励校验码参数
+      properties:
+        arcode:
+          type: string
+          description: 广告奖励验证码
+          example: a1cf8934
+    GuestLoginParams:
+      type: object
+      description: 游客登录参数
+      properties:
+        productId:
+          type: integer
+          description: 产品ID
+          example: 1038
+        channel:
+          type: string
+          description: 渠道
+          example: '202110380001'
+        channelId:
+          type: integer
+          description: 渠道ID
+          example: 10380001
+        version:
+          type: string
+          description: 客户端版本号
+          example: 0.0.0.0
+        deviceId:
+          type: string
+          description: 客户端设备ID
+          example: deviceId
+        imei:
+          type: string
+          description: （可选）客户端设备IMEI
+          example: IMEI
+        oaid:
+          type: string
+          description: （可选）客户端设备OAID
+          example: OAID
+        deviceInfo:
+          type: string
+          description: 客户端设备信息
+          example: iPhone12Pro
+        osInfo:
+          type: string
+          description: 客户端操作系统信息
+          example: iOS 14.1
+        features:
+          $ref: '#/components/schemas/FeatureCodes'
+    GuestLoginResult:
+      type: object
+      description: 游客登录返回结果
+      properties:
+        uid:
+          type: integer
+          description: UID
+          example: 123
+        token:
+          type: string
+          description: 一个可自验证的token
+          example: '5f9fcdc505d4a4feea636a13'
+        guestId:
+          type: string
+          description: 游客ID
+          example: 'd6920cc708694fa09b44c011a8288dbf'
+        register:
+          type: integer
+          description: 是否是新注册：0|1
+          example: 1
+        registerTime:
+          type: integer
+          description: 注册时间（unix time，1970年1月1日0时至今所经过的秒数）
+          example: 1607918923
+        slot:
+          type: integer
+          description: 分片槽（灰度ID），[0 - 15]
+          example: 13
+          enum: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    WeChatLoginParams:
+      type: object
+      description: 微信登录参数
+      properties:
+        productId:
+          type: integer
+          description: 产品ID
+          example: 1038
+        channel:
+          type: string
+          description: 渠道
+          example: '202110380001'
+        channelId:
+          type: integer
+          description: 渠道ID
+          example: 10380001
+        code:
+          type: string
+          description: （可选）微信授权code，与openid二选一
+          example: 'code'
+        openid:
+          type: string
+          description: （可选）微信openid，与code二选一
+          example: 'openid'
+        version:
+          type: string
+          description: 客户端版本号
+          example: 0.0.0.0
+        deviceId:
+          type: string
+          description: 客户端设备ID
+          example: deviceId
+        imei:
+          type: string
+          description: （可选）客户端设备IMEI
+          example: IMEI
+        oaid:
+          type: string
+          description: （可选）客户端设备OAID
+          example: OAID
+        deviceInfo:
+          type: string
+          description: 客户端设备信息
+          example: iPhone12Pro
+        osInfo:
+          type: string
+          description: 客户端操作系统信息
+          example: iOS 14.1
+        features:
+          $ref: '#/components/schemas/FeatureCodes'
+    WeChatLoginResult:
+      type: object
+      description: 微信登录返回结果
+      properties:
+        uid:
+          type: integer
+          description: UID
+          example: 123
+        token:
+          type: string
+          description: 一个可自验证的token
+          example: '5f9fcdc505d4a4feea636a13'
+        openid:
+          type: string
+          description: Open ID
+          example: 'd6920cc708694fa09b44c011a8288dbf'
+        register:
+          type: integer
+          description: 是否是新注册：0|1
+          example: 1
+        registerTime:
+          type: integer
+          description: 注册时间（unix time，1970年1月1日0时至今所经过的秒数）
+          example: 1607918923
+        slot:
+          type: integer
+          description: 分片槽（灰度ID），[0 - 15]
+          example: 13
+          enum: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    Player:
+      type: object
+      description: 玩家信息
+      properties:
+        uid:
+          type: integer
+          description: UID
+          example: 123
