@@ -9,11 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootApplication
-public class CowboyApplication {
+public class HttpDemoApplication {
 
     public static void main(String[] args) {
-        var appClass = CowboyApplication.class;
-        var ctx = SpringApplication.run(appClass, args);
+        var ctx = SpringApplication.run(HttpDemoApplication.class, args);
         var app = ctx.getBean(AppProperties.class);
         BannerUtil.printGameBanner(s -> log.info("-- Banner --\n{}", s), app.getName(), app.getVersion());
     }
