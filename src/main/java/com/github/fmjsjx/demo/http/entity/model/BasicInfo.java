@@ -11,15 +11,19 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fmjsjx.libcommon.bson.BsonUtil;
-import com.github.fmjsjx.libcommon.bson.DotNotation;
-import com.github.fmjsjx.libcommon.bson.model.ObjectModel;
+import com.github.fmjsjx.bson.model.core.BsonUtil;
+import com.github.fmjsjx.bson.model.core.DotNotation;
+import com.github.fmjsjx.bson.model.core.ObjectModel;
 import com.github.fmjsjx.libcommon.util.ObjectUtil;
 import com.jsoniter.ValueType;
 import com.jsoniter.any.Any;
 import com.mongodb.client.model.Updates;
 
 public class BasicInfo extends ObjectModel<BasicInfo> {
+
+    public static final String BNAME_NICKNAME = "nn";
+    public static final String BNAME_FACE_ID = "fi";
+    public static final String BNAME_FACE_URL = "fu";
 
     private static final DotNotation XPATH = DotNotation.of("bsc");
 
@@ -137,6 +141,18 @@ public class BasicInfo extends ObjectModel<BasicInfo> {
         nickname = BsonUtil.stringValue(src, "nn").orElse("");
         faceId = BsonUtil.intValue(src, "fi").orElse(0);
         faceUrl = BsonUtil.stringValue(src, "fu").orElse("");
+    }
+
+    public boolean nicknameUpdated() {
+        return updatedFields.get(1);
+    }
+
+    public boolean faceIdUpdated() {
+        return updatedFields.get(2);
+    }
+
+    public boolean faceUrlUpdated() {
+        return updatedFields.get(3);
     }
 
     @Override

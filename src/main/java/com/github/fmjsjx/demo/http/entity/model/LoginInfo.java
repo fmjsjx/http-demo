@@ -13,9 +13,9 @@ import org.bson.conversions.Bson;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fmjsjx.libcommon.bson.BsonUtil;
-import com.github.fmjsjx.libcommon.bson.DotNotation;
-import com.github.fmjsjx.libcommon.bson.model.ObjectModel;
+import com.github.fmjsjx.bson.model.core.BsonUtil;
+import com.github.fmjsjx.bson.model.core.DotNotation;
+import com.github.fmjsjx.bson.model.core.ObjectModel;
 import com.github.fmjsjx.libcommon.util.DateTimeUtil;
 import com.github.fmjsjx.libcommon.util.ObjectUtil;
 import com.jsoniter.ValueType;
@@ -23,6 +23,15 @@ import com.jsoniter.any.Any;
 import com.mongodb.client.model.Updates;
 
 public class LoginInfo extends ObjectModel<LoginInfo> {
+
+    public static final String BNAME_COUNT = "cnt";
+    public static final String BNAME_DAYS = "d";
+    public static final String BNAME_CONTINUOUS_DAYS = "cnd";
+    public static final String BNAME_MAX_CONTINUOUS_DAYS = "mcd";
+    public static final String BNAME_GAMING_DAYS = "gmd";
+    public static final String BNAME_MAX_GAMING_DAYS = "mgd";
+    public static final String BNAME_IP = "ip";
+    public static final String BNAME_LOGIN_TIME = "lgt";
 
     private static final DotNotation XPATH = DotNotation.of("lgn");
 
@@ -267,6 +276,38 @@ public class LoginInfo extends ObjectModel<LoginInfo> {
         maxGamingDays = BsonUtil.intValue(src, "mgd").orElse(0);
         ip = BsonUtil.stringValue(src, "ip").orElse("");
         loginTime = BsonUtil.dateTimeValue(src, "lgt").orElse(null);
+    }
+
+    public boolean countUpdated() {
+        return updatedFields.get(1);
+    }
+
+    public boolean daysUpdated() {
+        return updatedFields.get(2);
+    }
+
+    public boolean continuousDaysUpdated() {
+        return updatedFields.get(3);
+    }
+
+    public boolean maxContinuousDaysUpdated() {
+        return updatedFields.get(4);
+    }
+
+    public boolean gamingDaysUpdated() {
+        return updatedFields.get(5);
+    }
+
+    public boolean maxGamingDaysUpdated() {
+        return updatedFields.get(6);
+    }
+
+    public boolean ipUpdated() {
+        return updatedFields.get(7);
+    }
+
+    public boolean loginTimeUpdated() {
+        return updatedFields.get(8);
     }
 
     @Override

@@ -10,14 +10,16 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fmjsjx.libcommon.bson.BsonUtil;
-import com.github.fmjsjx.libcommon.bson.DotNotation;
-import com.github.fmjsjx.libcommon.bson.model.ObjectModel;
+import com.github.fmjsjx.bson.model.core.BsonUtil;
+import com.github.fmjsjx.bson.model.core.DotNotation;
+import com.github.fmjsjx.bson.model.core.ObjectModel;
 import com.jsoniter.ValueType;
 import com.jsoniter.any.Any;
 import com.mongodb.client.model.Updates;
 
 public class GuideInfo extends ObjectModel<GuideInfo> {
+
+    public static final String BNAME_STATUS = "s";
 
     private static final DotNotation XPATH = DotNotation.of("gd");
 
@@ -97,6 +99,10 @@ public class GuideInfo extends ObjectModel<GuideInfo> {
             return;
         }
         status = BsonUtil.intValue(src, "s").orElse(0);
+    }
+
+    public boolean statusUpdated() {
+        return updatedFields.get(1);
     }
 
     @Override

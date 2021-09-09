@@ -12,11 +12,11 @@ import org.bson.conversions.Bson;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fmjsjx.libcommon.bson.BsonUtil;
-import com.github.fmjsjx.libcommon.bson.DotNotation;
-import com.github.fmjsjx.libcommon.bson.model.ObjectModel;
-import com.github.fmjsjx.libcommon.bson.model.SimpleMapModel;
-import com.github.fmjsjx.libcommon.bson.model.SimpleValueTypes;
+import com.github.fmjsjx.bson.model.core.BsonUtil;
+import com.github.fmjsjx.bson.model.core.DotNotation;
+import com.github.fmjsjx.bson.model.core.ObjectModel;
+import com.github.fmjsjx.bson.model.core.SimpleMapModel;
+import com.github.fmjsjx.bson.model.core.SimpleValueTypes;
 import com.github.fmjsjx.libcommon.util.DateTimeUtil;
 import com.github.fmjsjx.libcommon.util.ObjectUtil;
 import com.jsoniter.ValueType;
@@ -24,6 +24,12 @@ import com.jsoniter.any.Any;
 import com.mongodb.client.model.Updates;
 
 public class DailyInfo extends ObjectModel<DailyInfo> {
+
+    public static final String BNAME_DAY = "day";
+    public static final String BNAME_COIN = "cn";
+    public static final String BNAME_DIAMOND = "dm";
+    public static final String BNAME_VIDEO_COUNT = "vdc";
+    public static final String BNAME_VIDEO_COUNTS = "vdcs";
 
     private static final DotNotation XPATH = DotNotation.of("dly");
 
@@ -190,6 +196,26 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         diamond = BsonUtil.intValue(src, "dm").orElse(0);
         videoCount = BsonUtil.intValue(src, "vdc").orElse(0);
         BsonUtil.objectValue(src, "vdcs").ifPresentOrElse(videoCounts::load, videoCounts::clear);
+    }
+
+    public boolean dayUpdated() {
+        return updatedFields.get(1);
+    }
+
+    public boolean coinUpdated() {
+        return updatedFields.get(2);
+    }
+
+    public boolean diamondUpdated() {
+        return updatedFields.get(3);
+    }
+
+    public boolean videoCountUpdated() {
+        return updatedFields.get(4);
+    }
+
+    public boolean videoCountsUpdated() {
+        return videoCounts.updated();
     }
 
     @Override

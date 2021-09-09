@@ -11,14 +11,18 @@ import org.bson.conversions.Bson;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fmjsjx.libcommon.bson.BsonUtil;
-import com.github.fmjsjx.libcommon.bson.DotNotation;
-import com.github.fmjsjx.libcommon.bson.model.ObjectModel;
+import com.github.fmjsjx.bson.model.core.BsonUtil;
+import com.github.fmjsjx.bson.model.core.DotNotation;
+import com.github.fmjsjx.bson.model.core.ObjectModel;
 import com.jsoniter.ValueType;
 import com.jsoniter.any.Any;
 import com.mongodb.client.model.Updates;
 
 public class WalletInfo extends ObjectModel<WalletInfo> {
+
+    public static final String BNAME_COIN_TOTAL = "ct";
+    public static final String BNAME_COIN_USED = "cu";
+    public static final String BNAME_DIAMOND = "d";
 
     private static final DotNotation XPATH = DotNotation.of("wlt");
 
@@ -144,6 +148,22 @@ public class WalletInfo extends ObjectModel<WalletInfo> {
         coinTotal = BsonUtil.intValue(src, "ct").orElse(0);
         coinUsed = BsonUtil.intValue(src, "cu").orElse(0);
         diamond = BsonUtil.intValue(src, "d").orElse(0);
+    }
+
+    public boolean coinTotalUpdated() {
+        return updatedFields.get(1);
+    }
+
+    public boolean coinUsedUpdated() {
+        return updatedFields.get(2);
+    }
+
+    public boolean coinUpdated() {
+        return updatedFields.get(3);
+    }
+
+    public boolean diamondUpdated() {
+        return updatedFields.get(4);
     }
 
     @Override

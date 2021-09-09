@@ -12,10 +12,10 @@ import org.bson.conversions.Bson;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fmjsjx.libcommon.bson.BsonUtil;
-import com.github.fmjsjx.libcommon.bson.model.RootModel;
-import com.github.fmjsjx.libcommon.bson.model.SimpleMapModel;
-import com.github.fmjsjx.libcommon.bson.model.SimpleValueTypes;
+import com.github.fmjsjx.bson.model.core.BsonUtil;
+import com.github.fmjsjx.bson.model.core.RootModel;
+import com.github.fmjsjx.bson.model.core.SimpleMapModel;
+import com.github.fmjsjx.bson.model.core.SimpleValueTypes;
 import com.github.fmjsjx.libcommon.util.DateTimeUtil;
 import com.github.fmjsjx.libcommon.util.ObjectUtil;
 import com.jsoniter.ValueType;
@@ -23,6 +23,19 @@ import com.jsoniter.any.Any;
 import com.mongodb.client.model.Updates;
 
 public class Player extends RootModel<Player> {
+
+    public static final String BNAME_UID = "_id";
+    public static final String BNAME_PREFERENCES = "pfc";
+    public static final String BNAME_BASIC = "bsc";
+    public static final String BNAME_LOGIN = "lgn";
+    public static final String BNAME_GUIDE = "gd";
+    public static final String BNAME_WALLET = "wlt";
+    public static final String BNAME_ITEMS = "itm";
+    public static final String BNAME_VIDEOS = "vds";
+    public static final String BNAME_DAILY = "dly";
+    public static final String BNAME_UPDATE_VERSION = "_uv";
+    public static final String BNAME_CREATE_TIME = "_ct";
+    public static final String BNAME_UPDATE_TIME = "_ut";
 
     private int uid;
     private final PreferencesInfo preferences = new PreferencesInfo(this);
@@ -273,6 +286,54 @@ public class Player extends RootModel<Player> {
         createTime = BsonUtil.dateTimeValue(src, "_ct").orElse(null);
         updateTime = BsonUtil.dateTimeValue(src, "_ut").orElse(null);
         reset();
+    }
+
+    public boolean uidUpdated() {
+        return updatedFields.get(1);
+    }
+
+    public boolean preferencesUpdated() {
+        return preferences.updated();
+    }
+
+    public boolean basicUpdated() {
+        return basic.updated();
+    }
+
+    public boolean loginUpdated() {
+        return login.updated();
+    }
+
+    public boolean guideUpdated() {
+        return guide.updated();
+    }
+
+    public boolean walletUpdated() {
+        return wallet.updated();
+    }
+
+    public boolean itemsUpdated() {
+        return items.updated();
+    }
+
+    public boolean videosUpdated() {
+        return videos.updated();
+    }
+
+    public boolean dailyUpdated() {
+        return daily.updated();
+    }
+
+    public boolean updateVersionUpdated() {
+        return updatedFields.get(10);
+    }
+
+    public boolean createTimeUpdated() {
+        return updatedFields.get(11);
+    }
+
+    public boolean updateTimeUpdated() {
+        return updatedFields.get(12);
     }
 
     @Override

@@ -10,15 +10,17 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fmjsjx.libcommon.bson.BsonUtil;
-import com.github.fmjsjx.libcommon.bson.DotNotation;
-import com.github.fmjsjx.libcommon.bson.model.ObjectModel;
+import com.github.fmjsjx.bson.model.core.BsonUtil;
+import com.github.fmjsjx.bson.model.core.DotNotation;
+import com.github.fmjsjx.bson.model.core.ObjectModel;
 import com.github.fmjsjx.libcommon.util.ObjectUtil;
 import com.jsoniter.ValueType;
 import com.jsoniter.any.Any;
 import com.mongodb.client.model.Updates;
 
 public class PreferencesInfo extends ObjectModel<PreferencesInfo> {
+
+    public static final String BNAME_CUSTOM = "ctm";
 
     private static final DotNotation XPATH = DotNotation.of("pfc");
 
@@ -98,6 +100,10 @@ public class PreferencesInfo extends ObjectModel<PreferencesInfo> {
             return;
         }
         custom = BsonUtil.stringValue(src, "ctm").orElse("");
+    }
+
+    public boolean customUpdated() {
+        return updatedFields.get(1);
     }
 
     @Override

@@ -11,16 +11,19 @@ import org.bson.conversions.Bson;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fmjsjx.libcommon.bson.BsonUtil;
-import com.github.fmjsjx.libcommon.bson.DotNotation;
-import com.github.fmjsjx.libcommon.bson.model.ObjectModel;
-import com.github.fmjsjx.libcommon.bson.model.SimpleMapModel;
-import com.github.fmjsjx.libcommon.bson.model.SimpleValueTypes;
+import com.github.fmjsjx.bson.model.core.BsonUtil;
+import com.github.fmjsjx.bson.model.core.DotNotation;
+import com.github.fmjsjx.bson.model.core.ObjectModel;
+import com.github.fmjsjx.bson.model.core.SimpleMapModel;
+import com.github.fmjsjx.bson.model.core.SimpleValueTypes;
 import com.jsoniter.ValueType;
 import com.jsoniter.any.Any;
 import com.mongodb.client.model.Updates;
 
 public class VideosInfo extends ObjectModel<VideosInfo> {
+
+    public static final String BNAME_COUNT = "cnt";
+    public static final String BNAME_COUNTS = "cns";
 
     private static final DotNotation XPATH = DotNotation.of("vds");
 
@@ -128,6 +131,14 @@ public class VideosInfo extends ObjectModel<VideosInfo> {
         }
         count = BsonUtil.intValue(src, "cnt").orElse(0);
         BsonUtil.objectValue(src, "cns").ifPresentOrElse(counts::load, counts::clear);
+    }
+
+    public boolean countUpdated() {
+        return updatedFields.get(1);
+    }
+
+    public boolean countsUpdated() {
+        return counts.updated();
     }
 
     @Override
