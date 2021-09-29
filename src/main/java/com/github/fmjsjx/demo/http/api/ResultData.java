@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.OptionalInt;
 
+import com.github.fmjsjx.demo.http.core.model.ServiceContext;
 import com.github.fmjsjx.demo.http.entity.model.Player;
 
 import lombok.Getter;
@@ -88,6 +89,13 @@ public class ResultData {
         return this;
     }
 
+    public ResultData events(ServiceContext ctx) {
+        if (ctx.hasEvent()) {
+            this.events = ctx.events();
+        }
+        return this;
+    }
+
     public ResultData event(String event) {
         var events = this.events;
         if (events == null) {
@@ -102,6 +110,13 @@ public class ResultData {
             this.events = new ArrayList<>(events);
         } else {
             this.events.addAll(events);
+        }
+        return this;
+    }
+
+    public ResultData appendEvents(ServiceContext ctx) {
+        if (ctx.hasEvent()) {
+            return appendEvents(ctx.events());
         }
         return this;
     }

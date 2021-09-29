@@ -1,7 +1,5 @@
 package com.github.fmjsjx.demo.http.controller;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -74,8 +72,8 @@ public class VideosController {
 
     ResultData get0(AuthToken token, VideoConfig video, int retryCount) {
         var player = playerManager.getPlayer(token);
-        var events = new ArrayList<String>();
-        playerManager.fixPlayerAndUpdate(token, player, LocalDate.now(), events);
+        var ctx = token.newContext(player);
+        playerManager.fixPlayerAndUpdate(ctx);
         var remaining = -1;
         var limit = video.limit();
         if (limit.isPresent()) {
@@ -94,7 +92,7 @@ public class VideosController {
             }
         }
         var result = new VideoBonusInfo(video.id(), remaining).bonus(video.bonus());
-        return ResultData.of(result, player, retryCount).events(events);
+        return ctx.toResultData(result, retryCount);
     }
 
     @HttpPost("/bonus")
@@ -117,8 +115,8 @@ public class VideosController {
 
     ResultData postBonus0(AuthToken token, ArcodeParams params, VideoConfig video, boolean counting, int retryCount) {
         var videoId = video.id();
-        var events = new ArrayList<String>();
-        var player = playerManager.getPlayer(token, LocalDate.now(), events);
+        var ctx = token.newContext();
+        var player = playerManager.getPlayer(ctx);
         var videos = player.getVideos();
         var count = videos.getCounts().get(videoId).orElse(0);
         var remaining = -1;
@@ -156,7 +154,7 @@ public class VideosController {
             }
         }
         var itemLogs = ItemUtil.addItems(token, player, bonus, video.sourceId(), video.remark());
-        playerManager.update(token, player);
+        playerManager.update(ctx);
         videoManager.writeOffArcodeAsync(token.uid(), params.getArcode());
         if (remaining > 0) {
             remaining--;
@@ -165,7 +163,7 @@ public class VideosController {
                 Map.of("video_id", video.id(), "count", count + 1, "remaining", remaining, "bonus", bonus));
         businessLogManager.logItemsAsync(itemLogs);
         var result = Map.of("id", video.id(), "remaining", remaining, "bonus", bonus);
-        return ResultData.of(result, player, retryCount).events(events);
+        return ctx.toResultData(result, retryCount);
     }
 
 }

@@ -1,7 +1,6 @@
 package com.github.fmjsjx.demo.http.controller;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -177,8 +176,8 @@ public class AuthController {
             businessLogManager.logEventAsync(token, Auth.LOGIN, LoginData.create(token));
             var lock = playerManager.lock(account.getUid(), 15, 60_000, ApiErrors::dataAccessError);
             return lock.supplyThenUnlock(() -> {
-                var player = account.getRegister() == 1 ? playerManager.createWeChatPlayer(token, user)
-                        : playerManager.getWeChatPlayer(token, user);
+                var player = account.getRegister() == 1 ? playerManager.createPlayer(token, user)
+                        : playerManager.getPlayer(token, user);
                 player = onPlayerLoggedIn(token, player, user.getNickname(), user.getHeadimgurl());
                 checkForCache(token, player);
                 var result = loginResult(token, player);
@@ -193,9 +192,8 @@ public class AuthController {
     private Player onPlayerLoggedIn(AuthToken token, Player player, String nickname, String faceUrl) {
         for (int i = 0; i <= ConfigUtil.retryCount(); i++) {
             var time = token.getLoginTime();
-            var loginDay = time.toLocalDate();
-            var events = new ArrayList<String>();
-            playerManager.fixPlayerBeforeProcessing(token, player, loginDay, events);
+            var ctx = token.newContext(player, time);
+            playerManager.fixPlayerBeforeProcessing(ctx);
             // fix basic info
             var basic = player.getBasic();
             if (StringUtil.isNotBlank(nickname)) {
@@ -208,9 +206,10 @@ public class AuthController {
             var login = player.getLogin();
             if (login.getLoginTime().isBefore(time)) {
                 login.increaseCount();
+                login.setLoginTime(time);
             }
             login.setIp(token.getIp());
-            if (playerManager.updateCas(token, player)) {
+            if (playerManager.updateCas(ctx)) {
                 return player;
             }
             player = playerManager.findPlayer(token.gid(), token.uid()).orElseThrow(ApiErrors::dataAccessError);

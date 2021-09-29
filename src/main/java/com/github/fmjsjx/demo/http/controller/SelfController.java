@@ -1,7 +1,5 @@
 package com.github.fmjsjx.demo.http.controller;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +44,9 @@ public class SelfController {
 
     ResultData get0(AuthToken token, int retryCount) {
         var player = playerManager.getPlayer(token);
-        var events = new ArrayList<String>();
-        playerManager.fixPlayerAndUpdate(token, player, LocalDate.now(), events);
-        return ResultData.create().sync(player).force().events(events);
+        var ctx = token.newContext(player);
+        playerManager.fixPlayerAndUpdate(ctx);
+        return ctx.toResultData(retryCount).force();
     }
 
     @HttpPost("/arcodes")

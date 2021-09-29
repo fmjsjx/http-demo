@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import com.github.fmjsjx.demo.http.core.log.EventLog;
 import com.github.fmjsjx.demo.http.core.log.ItemLog;
 import com.github.fmjsjx.demo.http.entity.Account;
+import com.github.fmjsjx.demo.http.entity.model.Player;
 
 public interface AuthToken {
 
@@ -110,5 +111,21 @@ public interface AuthToken {
     <T> Optional<T> removeProperty(Object key);
 
     boolean removeProperty(Object key, Object value);
+
+    default ServiceContext newContext() {
+        return ServiceContext.create(this);
+    }
+
+    default ServiceContext newContext(LocalDateTime time) {
+        return ServiceContext.create(this, time);
+    }
+
+    default ServiceContext newContext(Player player) {
+        return ServiceContext.create(this, player);
+    }
+
+    default ServiceContext newContext(Player player, LocalDateTime time) {
+        return ServiceContext.create(this, player, time);
+    }
 
 }

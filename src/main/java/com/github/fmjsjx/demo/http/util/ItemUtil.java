@@ -1,6 +1,8 @@
 package com.github.fmjsjx.demo.http.util;
 
-import static com.github.fmjsjx.demo.http.api.Constants.ItemIds.*;
+import static com.github.fmjsjx.demo.http.api.Constants.ItemIds.COIN;
+import static com.github.fmjsjx.demo.http.api.Constants.ItemIds.DIAMOND;
+import static com.github.fmjsjx.demo.http.api.Constants.ItemIds.RANDOM_COIN;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +14,7 @@ import com.github.fmjsjx.demo.http.api.ItemBox;
 import com.github.fmjsjx.demo.http.core.config.BonusPolicies;
 import com.github.fmjsjx.demo.http.core.log.ItemLog;
 import com.github.fmjsjx.demo.http.core.model.AuthToken;
+import com.github.fmjsjx.demo.http.core.model.ServiceContext;
 import com.github.fmjsjx.demo.http.entity.model.Player;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,14 @@ public class ItemUtil {
             itemLogs.add(costItem(token, player, item, sourceId, remark));
         }
         return items.size();
+    }
+
+    public static final int costItems(ServiceContext ctx, Collection<ItemBox> items, int sourceId, String remark) {
+        return costItems(ctx.token(), ctx.player(), items, sourceId, remark, ctx.itemLogs());
+    }
+
+    public static final void costItem(ServiceContext ctx, ItemBox item, int sourceId, String remark) {
+        ctx.itemLog(costItem(ctx.token(), ctx.player(), item, sourceId, remark));
     }
 
     public static final ItemLog costItem(AuthToken token, Player player, ItemBox item, int sourceId, String remark) {
@@ -76,6 +87,14 @@ public class ItemUtil {
             itemLogs.add(addItem(token, player, item, sourceId, remark));
         }
         return items.size();
+    }
+
+    public static final int addItems(ServiceContext ctx, Collection<ItemBox> items, int sourceId, String remark) {
+        return addItems(ctx.token(), ctx.player(), items, sourceId, remark, ctx.itemLogs());
+    }
+
+    public static final void addItem(ServiceContext ctx, ItemBox item, int sourceId, String remark) {
+        ctx.itemLog(addItem(ctx.token(), ctx.player(), item, sourceId, remark));
     }
 
     public static final ItemLog addItem(AuthToken token, Player player, ItemBox item, int sourceId, String remark) {

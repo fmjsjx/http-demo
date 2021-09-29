@@ -3,10 +3,8 @@ package com.github.fmjsjx.demo.http.service;
 import static com.github.fmjsjx.demo.http.api.Constants.Events.*;
 import static com.mongodb.client.model.Filters.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -22,9 +20,10 @@ import com.github.fmjsjx.demo.http.core.config.ServerConfig.CacheMode;
 import com.github.fmjsjx.demo.http.core.config.ServerConfig.SystemConfig;
 import com.github.fmjsjx.demo.http.core.model.AuthToken;
 import com.github.fmjsjx.demo.http.core.model.RedisLock;
+import com.github.fmjsjx.demo.http.core.model.ServiceContext;
 import com.github.fmjsjx.demo.http.entity.model.Player;
 import com.github.fmjsjx.demo.http.exception.ConcurrentlyUpdateException;
-import com.github.fmjsjx.demo.http.sdk.wechat.UserInfoResponse;
+import com.github.fmjsjx.demo.http.sdk.PartnerUserInfo;
 import com.github.fmjsjx.demo.http.util.ConfigUtil;
 import com.github.fmjsjx.libcommon.json.Jackson2Library;
 import com.github.fmjsjx.libcommon.util.RandomUtil;
@@ -83,6 +82,8 @@ public class PlayerManager extends RedisWrappedManager {
     private ConfigManager configManager;
     @Autowired
     private MongoDBManager mongoDBManager;
+    @Autowired
+    private BusinessLogManager businessLogManager;
 
     private MongoCollection<BsonDocument> playerBsonCollection(int groupId) {
         return mongoDBManager.gameDatabase(groupId).getCollection("player", BsonDocument.class);
@@ -156,9 +157,10 @@ public class PlayerManager extends RedisWrappedManager {
         return player;
     }
 
-    public Player getPlayer(AuthToken token, LocalDate date, List<String> events) {
-        var player = getPlayer(token);
-        fixPlayerBeforeProcessing(token, player, date, events);
+    public Player getPlayer(ServiceContext ctx) {
+        var player = getPlayer(ctx.token());
+        ctx.player(player);
+        fixPlayerBeforeProcessing(ctx);
         return player;
     }
 
@@ -207,6 +209,8 @@ public class PlayerManager extends RedisWrappedManager {
         var login = player.getLogin();
         login.setCount(1);
         login.setDays(1);
+        login.setContinuousDays(1);
+        login.setMaxContinuousDays(1);
         login.setLoginTime(token.getLoginTime());
         login.setIp(token.getIp());
         // guide
@@ -249,16 +253,16 @@ public class PlayerManager extends RedisWrappedManager {
         }
     }
 
-    public Player getWeChatPlayer(AuthToken token, UserInfoResponse user) {
+    public Player getPlayer(AuthToken token, PartnerUserInfo user) {
         // create automatically if not persistent
-        return findPlayer(token.gid(), token.uid()).orElseGet(() -> createWeChatPlayer(token, user));
+        return findPlayer(token.gid(), token.uid()).orElseGet(() -> createPlayer(token, user));
     }
 
-    public Player createWeChatPlayer(AuthToken token, UserInfoResponse user) {
+    public Player createPlayer(AuthToken token, PartnerUserInfo user) {
         try {
-            return createPlayer(token, user.getNickname(), user.getHeadimgurl());
+            return createPlayer(token, user.nickname(), user.faceUrl());
         } catch (DuplicateKeyException e) {
-            return getWeChatPlayer(token, user);
+            return getPlayer(token, user);
         }
     }
 
@@ -330,22 +334,23 @@ public class PlayerManager extends RedisWrappedManager {
         throw exceptionSupplier.get();
     }
 
-    public void update(AuthToken token, Player player) throws ConcurrentlyUpdateException {
+    public void update(ServiceContext ctx) throws ConcurrentlyUpdateException {
+        var token = ctx.token();
         var system = systemConfig();
-        if (updateCas(token, player)) {
+        if (updateCas(ctx)) {
             if (system.usePlayerCache()) {
                 if (system.playerCacheMode() == CacheMode.REDIS) {
                     // update REDIS cache when update success
                     var key = toCachePlayerDataKey(token.uid());
-                    var value = toJsonData(player);
+                    var value = toJsonData(ctx.player());
                     cacheInRedisAsync(key, value);
                 } else if (system.playerCacheMode() == CacheMode.LOCAL) {
-                    token.setProperty(Player.class, player);
+                    token.setProperty(Player.class, ctx.player());
                 }
             }
         } else {
             // always clear local cache when update failed
-            token.removeProperty(Player.class, player);
+            token.removeProperty(Player.class, ctx.player());
             if (system.usePlayerCache()) {
                 if (system.playerCacheMode() == CacheMode.REDIS) {
                     // clear REDIS cache when update failed
@@ -359,12 +364,16 @@ public class PlayerManager extends RedisWrappedManager {
         }
     }
 
-    public void fixPlayerBeforeUpdate(AuthToken token, Player player) {
+    public void fixPlayerBeforeUpdate(ServiceContext ctx) {
         // TODO do nothing now
     }
 
+    public boolean updateCas(ServiceContext ctx) {
+        fixPlayerBeforeUpdate(ctx);
+        return updateCas(ctx.token(), ctx.player());
+    }
+
     public boolean updateCas(AuthToken token, Player player) {
-        fixPlayerBeforeUpdate(token, player);
         if (player.updated()) {
             player.setUpdateTime(LocalDateTime.now());
             var filter = and(eq(player.getUid()), eq("_uv", player.getUpdateVersion()));
@@ -389,15 +398,18 @@ public class PlayerManager extends RedisWrappedManager {
         }
     }
 
-    public boolean fixPlayerBeforeProcessing(AuthToken token, Player player, LocalDate date, List<String> eventsOut) {
+    public boolean fixPlayerBeforeProcessing(ServiceContext ctx) {
+        var player = ctx.player();
         var changed = false;
         // TODO may fix data for old versions
+        // ...
         // check cross day
+        var date = ctx.time().toLocalDate();
         var daily = player.getDaily();
         if (!daily.getDay().isEqual(date)) {
             changed = true;
             // cross day
-            eventsOut.add(CROSS_DAY);
+            ctx.event(CROSS_DAY);
             // fix login
             var login = player.getLogin();
             login.increaseDays();
@@ -422,9 +434,10 @@ public class PlayerManager extends RedisWrappedManager {
         return changed;
     }
 
-    public boolean fixPlayerAndUpdate(AuthToken token, Player player, LocalDate date, List<String> eventsOut) {
-        if (fixPlayerBeforeProcessing(token, player, date, eventsOut)) {
-            update(token, player);
+    public boolean fixPlayerAndUpdate(ServiceContext ctx) {
+        if (fixPlayerBeforeProcessing(ctx)) {
+            update(ctx);
+            businessLogManager.logItemsAsync(ctx.itemLogs());
             return true;
         }
         return false;

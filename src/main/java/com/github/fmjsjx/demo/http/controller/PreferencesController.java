@@ -1,8 +1,5 @@
 package com.github.fmjsjx.demo.http.controller;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.fmjsjx.demo.http.api.ApiResult;
@@ -41,11 +38,11 @@ public class PreferencesController {
     }
 
     private ResultData getCustom0(AuthToken token, int retryCount) {
-        var player = playerManager.getPlayer(token);
+        var ctx = token.newContext();
+        var player = playerManager.getPlayer(ctx);
         var custom = player.getPreferences().getCustom();
-        var events = new ArrayList<String>();
-        playerManager.fixPlayerAndUpdate(token, player, LocalDate.now(), events);
-        return ResultData.of(custom, player, retryCount).events(events);
+        playerManager.fixPlayerAndUpdate(ctx);
+        return ctx.toResultData(custom, retryCount);
     }
 
     @HttpPut("/custom")
@@ -62,10 +59,10 @@ public class PreferencesController {
     }
 
     ResultData putCustom0(AuthToken token, String custom, int retryCount) {
-        var events = new ArrayList<String>();
-        var player = playerManager.getPlayer(token, LocalDate.now(), events);
+        var ctx = token.newContext();
+        var player = playerManager.getPlayer(ctx);
         player.getPreferences().setCustom(custom);
-        playerManager.update(token, player);
-        return ResultData.of(player, retryCount).events(events);
+        playerManager.update(ctx);
+        return ctx.toResultData(retryCount);
     }
 }
