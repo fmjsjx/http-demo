@@ -2,6 +2,8 @@ package com.github.fmjsjx.demo.http.sdk.wechat;
 
 import java.util.List;
 
+import com.github.fmjsjx.demo.http.sdk.PartnerUserInfo;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,7 +11,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString(callSuper = true)
-public class UserInfoResponse extends SnsResponse {
+public class UserInfoResponse extends SnsResponse implements PartnerUserInfo {
 
     private String openid;
     private String nickname;
@@ -21,4 +23,14 @@ public class UserInfoResponse extends SnsResponse {
     private List<String> privilege;
     private String unionid;
 
+    @Override
+    public String nickname() {
+        return nickname;
+    }
+    
+    @Override
+    public String faceUrl() {
+        return headimgurl;
+    }
+    
 }
