@@ -77,7 +77,7 @@ public class VideosController {
         var remaining = -1;
         var limit = video.limit();
         if (limit.isPresent()) {
-            var count = player.getVideos().getCounts().get(video.id()).orElse(0);
+            var count = player.getStatistics().getVideoCounts().get(video.id()).orElse(0);
             remaining = Math.max(0, limit.getAsInt() - count);
         }
         var dailyLimit = video.dailyLimit();
@@ -117,8 +117,9 @@ public class VideosController {
         var videoId = video.id();
         var ctx = token.newContext();
         var player = playerManager.getPlayer(ctx);
-        var videos = player.getVideos();
-        var count = videos.getCounts().get(videoId).orElse(0);
+        var statistics = player.getStatistics();
+        var videoCounts = statistics.getVideoCounts();
+        var count = videoCounts.get(videoId).orElse(0);
         var remaining = -1;
         var limit = video.limit();
         if (limit.isPresent()) {
@@ -141,7 +142,7 @@ public class VideosController {
                 remaining = dr;
             }
         }
-        videos.getCounts().put(videoId, count + 1);
+        videoCounts.put(videoId, count + 1);
         daily.getVideoCounts().put(videoId, dailyCount + 1);
         if (counting) {
             PlayerManager.increaseVideoCount(player);

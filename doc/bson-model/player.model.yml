@@ -33,10 +33,10 @@ objects:
     type: simple-map
     key: int
     value: int
-  - name: videos
-    bname: vds
+  - name: statistics
+    bname: stc
     type: object
-    model: VideosInfo
+    model: StatisticsInfo
   - name: daily
     bname: dly
     type: object
@@ -127,19 +127,23 @@ objects:
   - name: diamond
     bname: d
     type: int
-- name: VideosInfo
+- name: StatisticsInfo
   type: object
   fields:
-  - name: count
-    bname: cnt
+  - name: videoCount
+    bname: vct
     type: int
     increase: true
-  - name: counts
-    bname: cns
+  - name: videoCounts
+    bname: vcs
     type: simple-map
     key: int
     value: int
     json-ignore: true
+  - name: gamingCount
+    bname: gct
+    type: int
+    increase: true
 - name: DailyInfo
   type: object
   fields:
@@ -163,3 +167,7 @@ objects:
     json-ignore: true
     key: int
     value: int
+  - name: gamingCount
+    bname: gct
+    type: int
+    increase: true

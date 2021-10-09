@@ -30,6 +30,7 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
     public static final String BNAME_DIAMOND = "dm";
     public static final String BNAME_VIDEO_COUNT = "vdc";
     public static final String BNAME_VIDEO_COUNTS = "vdcs";
+    public static final String BNAME_GAMING_COUNT = "gct";
 
     private static final DotNotation XPATH = DotNotation.of("dly");
 
@@ -42,6 +43,7 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
     private int videoCount;
     @JsonIgnore
     private final SimpleMapModel<Integer, Integer, DailyInfo> videoCounts = SimpleMapModel.integerKeys(this, "vdcs", SimpleValueTypes.INTEGER);
+    private int gamingCount;
 
     public DailyInfo(Player parent) {
         this.parent = parent;
@@ -103,6 +105,23 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         return videoCounts;
     }
 
+    public int getGamingCount() {
+        return gamingCount;
+    }
+
+    public void setGamingCount(int gamingCount) {
+        if (this.gamingCount != gamingCount) {
+            this.gamingCount = gamingCount;
+            updatedFields.set(6);
+        }
+    }
+
+    public int increaseGamingCount() {
+        var gamingCount = this.gamingCount += 1;
+        updatedFields.set(6);
+        return gamingCount;
+    }
+
     @Override
     public Player parent() {
         return parent;
@@ -129,6 +148,7 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         bson.append("dm", new BsonInt32(diamond));
         bson.append("vdc", new BsonInt32(videoCount));
         bson.append("vdcs", videoCounts.toBson());
+        bson.append("gct", new BsonInt32(gamingCount));
         return bson;
     }
 
@@ -140,6 +160,7 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         doc.append("dm", diamond);
         doc.append("vdc", videoCount);
         doc.append("vdcs", videoCounts.toDocument());
+        doc.append("gct", gamingCount);
         return doc;
     }
 
@@ -151,6 +172,7 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         data.put("dm", diamond);
         data.put("vdc", videoCount);
         data.put("vdcs", videoCounts.toData());
+        data.put("gct", gamingCount);
         return data;
     }
 
@@ -161,6 +183,7 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         diamond = BsonUtil.intValue(src, "dm").orElse(0);
         videoCount = BsonUtil.intValue(src, "vdc").orElse(0);
         BsonUtil.documentValue(src, "vdcs").ifPresentOrElse(videoCounts::load, videoCounts::clear);
+        gamingCount = BsonUtil.intValue(src, "gct").orElse(0);
     }
 
     @Override
@@ -170,6 +193,7 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         diamond = BsonUtil.intValue(src, "dm").orElse(0);
         videoCount = BsonUtil.intValue(src, "vdc").orElse(0);
         BsonUtil.documentValue(src, "vdcs").ifPresentOrElse(videoCounts::load, videoCounts::clear);
+        gamingCount = BsonUtil.intValue(src, "gct").orElse(0);
     }
 
     @Override
@@ -183,6 +207,7 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         diamond = BsonUtil.intValue(src, "dm").orElse(0);
         videoCount = BsonUtil.intValue(src, "vdc").orElse(0);
         BsonUtil.objectValue(src, "vdcs").ifPresentOrElse(videoCounts::load, videoCounts::clear);
+        gamingCount = BsonUtil.intValue(src, "gct").orElse(0);
     }
 
     @Override
@@ -196,6 +221,7 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         diamond = BsonUtil.intValue(src, "dm").orElse(0);
         videoCount = BsonUtil.intValue(src, "vdc").orElse(0);
         BsonUtil.objectValue(src, "vdcs").ifPresentOrElse(videoCounts::load, videoCounts::clear);
+        gamingCount = BsonUtil.intValue(src, "gct").orElse(0);
     }
 
     public boolean dayUpdated() {
@@ -218,6 +244,10 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         return videoCounts.updated();
     }
 
+    public boolean gamingCountUpdated() {
+        return updatedFields.get(6);
+    }
+
     @Override
     protected void appendFieldUpdates(List<Bson> updates) {
         var updatedFields = this.updatedFields;
@@ -236,6 +266,9 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         var videoCounts = this.videoCounts;
         if (videoCounts.updated()) {
             videoCounts.appendUpdates(updates);
+        }
+        if (updatedFields.get(6)) {
+            updates.add(Updates.set(xpath().resolve("gct").value(), gamingCount));
         }
     }
 
@@ -257,6 +290,9 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
         if (updatedFields.get(4)) {
             update.put("videoCount", videoCount);
         }
+        if (updatedFields.get(6)) {
+            update.put("gamingCount", gamingCount);
+        }
         return update;
     }
 
@@ -272,7 +308,7 @@ public class DailyInfo extends ObjectModel<DailyInfo> {
 
     @Override
     public String toString() {
-        return "DailyInfo(" + "day=" + day + ", " + "coin=" + coin + ", " + "diamond=" + diamond + ", " + "videoCount=" + videoCount + ", " + "videoCounts=" + videoCounts + ")";
+        return "DailyInfo(" + "day=" + day + ", " + "coin=" + coin + ", " + "diamond=" + diamond + ", " + "videoCount=" + videoCount + ", " + "videoCounts=" + videoCounts + ", " + "gamingCount=" + gamingCount + ")";
     }
 
 }

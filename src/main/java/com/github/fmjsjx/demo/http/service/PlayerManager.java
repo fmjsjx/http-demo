@@ -60,8 +60,21 @@ public class PlayerManager extends RedisWrappedManager {
     }
 
     public static final void increaseVideoCount(Player player) {
-        player.getVideos().increaseCount();
+        player.getStatistics().increaseVideoCount();
         player.getDaily().increaseVideoCount();
+    }
+    
+    public static final void increaseGamingCount(Player player) {
+        player.getStatistics().increaseGamingCount();
+        var dailyGamingCount = player.getDaily().increaseGamingCount();
+        if (dailyGamingCount == 1) {
+            // 当日首次
+            var login = player.getLogin();
+            var gamingDays = login.increaseGamingDays();
+            if (gamingDays > login.getMaxGamingDays()) {
+                login.setMaxGamingDays(gamingDays);
+            }
+        }
     }
 
     private static final SystemConfig systemConfig() {
@@ -418,7 +431,9 @@ public class PlayerManager extends RedisWrappedManager {
                 if (cdays >= login.getMaxContinuousDays()) {
                     login.setMaxContinuousDays(cdays);
                 }
-                login.setGamingDays(0);
+                if (daily.getGamingCount() == 0) {
+                    login.setGamingDays(0);
+                }
             } else {
                 login.setContinuousDays(1);
                 login.setGamingDays(0);
@@ -430,6 +445,7 @@ public class PlayerManager extends RedisWrappedManager {
             daily.setDiamond(0);
             daily.setVideoCount(0);
             daily.getVideoCounts().clear();
+            daily.setGamingCount(0);
         }
         return changed;
     }

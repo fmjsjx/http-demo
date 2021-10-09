@@ -31,7 +31,7 @@ public class Player extends RootModel<Player> {
     public static final String BNAME_GUIDE = "gd";
     public static final String BNAME_WALLET = "wlt";
     public static final String BNAME_ITEMS = "itm";
-    public static final String BNAME_VIDEOS = "vds";
+    public static final String BNAME_STATISTICS = "stc";
     public static final String BNAME_DAILY = "dly";
     public static final String BNAME_UPDATE_VERSION = "_uv";
     public static final String BNAME_CREATE_TIME = "_ct";
@@ -44,7 +44,7 @@ public class Player extends RootModel<Player> {
     private final GuideInfo guide = new GuideInfo(this);
     private final WalletInfo wallet = new WalletInfo(this);
     private final SimpleMapModel<Integer, Integer, Player> items = SimpleMapModel.integerKeys(this, "itm", SimpleValueTypes.INTEGER);
-    private final VideosInfo videos = new VideosInfo(this);
+    private final StatisticsInfo statistics = new StatisticsInfo(this);
     private final DailyInfo daily = new DailyInfo(this);
     @JsonIgnore
     private int updateVersion;
@@ -88,8 +88,8 @@ public class Player extends RootModel<Player> {
         return items;
     }
 
-    public VideosInfo getVideos() {
-        return videos;
+    public StatisticsInfo getStatistics() {
+        return statistics;
     }
 
     public DailyInfo getDaily() {
@@ -140,7 +140,7 @@ public class Player extends RootModel<Player> {
 
     @Override
     public boolean updated() {
-        if (preferences.updated() || basic.updated() || login.updated() || guide.updated() || wallet.updated() || items.updated() || videos.updated() || daily.updated()) {
+        if (preferences.updated() || basic.updated() || login.updated() || guide.updated() || wallet.updated() || items.updated() || statistics.updated() || daily.updated()) {
             return true;
         }
         return super.updated();
@@ -156,7 +156,7 @@ public class Player extends RootModel<Player> {
         bson.append("gd", guide.toBson());
         bson.append("wlt", wallet.toBson());
         bson.append("itm", items.toBson());
-        bson.append("vds", videos.toBson());
+        bson.append("stc", statistics.toBson());
         bson.append("dly", daily.toBson());
         bson.append("_uv", new BsonInt32(updateVersion));
         if (createTime != null) {
@@ -178,7 +178,7 @@ public class Player extends RootModel<Player> {
         doc.append("gd", guide.toDocument());
         doc.append("wlt", wallet.toDocument());
         doc.append("itm", items.toDocument());
-        doc.append("vds", videos.toDocument());
+        doc.append("stc", statistics.toDocument());
         doc.append("dly", daily.toDocument());
         doc.append("_uv", updateVersion);
         if (createTime != null) {
@@ -200,7 +200,7 @@ public class Player extends RootModel<Player> {
         data.put("gd", guide.toData());
         data.put("wlt", wallet.toData());
         data.put("itm", items.toData());
-        data.put("vds", videos.toData());
+        data.put("stc", statistics.toData());
         data.put("dly", daily.toData());
         data.put("_uv", updateVersion);
         if (createTime != null) {
@@ -221,7 +221,7 @@ public class Player extends RootModel<Player> {
         BsonUtil.documentValue(src, "gd").ifPresentOrElse(guide::load, guide::reset);
         BsonUtil.documentValue(src, "wlt").ifPresentOrElse(wallet::load, wallet::reset);
         BsonUtil.documentValue(src, "itm").ifPresentOrElse(items::load, items::clear);
-        BsonUtil.documentValue(src, "vds").ifPresentOrElse(videos::load, videos::reset);
+        BsonUtil.documentValue(src, "stc").ifPresentOrElse(statistics::load, statistics::reset);
         BsonUtil.documentValue(src, "dly").ifPresentOrElse(daily::load, daily::reset);
         updateVersion = BsonUtil.intValue(src, "_uv").orElse(0);
         createTime = BsonUtil.dateTimeValue(src, "_ct").orElse(null);
@@ -238,7 +238,7 @@ public class Player extends RootModel<Player> {
         BsonUtil.documentValue(src, "gd").ifPresentOrElse(guide::load, guide::reset);
         BsonUtil.documentValue(src, "wlt").ifPresentOrElse(wallet::load, wallet::reset);
         BsonUtil.documentValue(src, "itm").ifPresentOrElse(items::load, items::clear);
-        BsonUtil.documentValue(src, "vds").ifPresentOrElse(videos::load, videos::reset);
+        BsonUtil.documentValue(src, "stc").ifPresentOrElse(statistics::load, statistics::reset);
         BsonUtil.documentValue(src, "dly").ifPresentOrElse(daily::load, daily::reset);
         updateVersion = BsonUtil.intValue(src, "_uv").orElse(0);
         createTime = BsonUtil.dateTimeValue(src, "_ct").orElse(null);
@@ -259,7 +259,7 @@ public class Player extends RootModel<Player> {
         BsonUtil.objectValue(src, "gd").ifPresentOrElse(guide::load, guide::reset);
         BsonUtil.objectValue(src, "wlt").ifPresentOrElse(wallet::load, wallet::reset);
         BsonUtil.objectValue(src, "itm").ifPresentOrElse(items::load, items::clear);
-        BsonUtil.objectValue(src, "vds").ifPresentOrElse(videos::load, videos::reset);
+        BsonUtil.objectValue(src, "stc").ifPresentOrElse(statistics::load, statistics::reset);
         BsonUtil.objectValue(src, "dly").ifPresentOrElse(daily::load, daily::reset);
         updateVersion = BsonUtil.intValue(src, "_uv").orElse(0);
         createTime = BsonUtil.dateTimeValue(src, "_ct").orElse(null);
@@ -280,7 +280,7 @@ public class Player extends RootModel<Player> {
         BsonUtil.objectValue(src, "gd").ifPresentOrElse(guide::load, guide::reset);
         BsonUtil.objectValue(src, "wlt").ifPresentOrElse(wallet::load, wallet::reset);
         BsonUtil.objectValue(src, "itm").ifPresentOrElse(items::load, items::clear);
-        BsonUtil.objectValue(src, "vds").ifPresentOrElse(videos::load, videos::reset);
+        BsonUtil.objectValue(src, "stc").ifPresentOrElse(statistics::load, statistics::reset);
         BsonUtil.objectValue(src, "dly").ifPresentOrElse(daily::load, daily::reset);
         updateVersion = BsonUtil.intValue(src, "_uv").orElse(0);
         createTime = BsonUtil.dateTimeValue(src, "_ct").orElse(null);
@@ -316,8 +316,8 @@ public class Player extends RootModel<Player> {
         return items.updated();
     }
 
-    public boolean videosUpdated() {
-        return videos.updated();
+    public boolean statisticsUpdated() {
+        return statistics.updated();
     }
 
     public boolean dailyUpdated() {
@@ -366,9 +366,9 @@ public class Player extends RootModel<Player> {
         if (items.updated()) {
             items.appendUpdates(updates);
         }
-        var videos = this.videos;
-        if (videos.updated()) {
-            videos.appendUpdates(updates);
+        var statistics = this.statistics;
+        if (statistics.updated()) {
+            statistics.appendUpdates(updates);
         }
         var daily = this.daily;
         if (daily.updated()) {
@@ -393,7 +393,7 @@ public class Player extends RootModel<Player> {
         guide.reset();
         wallet.reset();
         items.reset();
-        videos.reset();
+        statistics.reset();
         daily.reset();
     }
 
@@ -422,8 +422,8 @@ public class Player extends RootModel<Player> {
         if (items.updated()) {
             update.put("items", items.toUpdate());
         }
-        if (videos.updated()) {
-            update.put("videos", videos.toUpdate());
+        if (statistics.updated()) {
+            update.put("statistics", statistics.toUpdate());
         }
         if (daily.updated()) {
             update.put("daily", daily.toUpdate());
@@ -458,9 +458,9 @@ public class Player extends RootModel<Player> {
         if (items.deletedSize() > 0) {
             delete.put("items", items.toDelete());
         }
-        var videos = this.videos;
-        if (videos.deletedSize() > 0) {
-            delete.put("videos", videos.toDelete());
+        var statistics = this.statistics;
+        if (statistics.deletedSize() > 0) {
+            delete.put("statistics", statistics.toDelete());
         }
         var daily = this.daily;
         if (daily.deletedSize() > 0) {
@@ -490,7 +490,7 @@ public class Player extends RootModel<Player> {
         if (items.deletedSize() > 0) {
             n++;
         }
-        if (videos.deletedSize() > 0) {
+        if (statistics.deletedSize() > 0) {
             n++;
         }
         if (daily.deletedSize() > 0) {
@@ -501,7 +501,7 @@ public class Player extends RootModel<Player> {
 
     @Override
     public String toString() {
-        return "Player(" + "uid=" + uid + ", " + "preferences=" + preferences + ", " + "basic=" + basic + ", " + "login=" + login + ", " + "guide=" + guide + ", " + "wallet=" + wallet + ", " + "items=" + items + ", " + "videos=" + videos + ", " + "daily=" + daily + ", " + "updateVersion=" + updateVersion + ", " + "createTime=" + createTime + ", " + "updateTime=" + updateTime + ")";
+        return "Player(" + "uid=" + uid + ", " + "preferences=" + preferences + ", " + "basic=" + basic + ", " + "login=" + login + ", " + "guide=" + guide + ", " + "wallet=" + wallet + ", " + "items=" + items + ", " + "statistics=" + statistics + ", " + "daily=" + daily + ", " + "updateVersion=" + updateVersion + ", " + "createTime=" + createTime + ", " + "updateTime=" + updateTime + ")";
     }
 
 }
