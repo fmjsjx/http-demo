@@ -145,7 +145,7 @@ public class VideosController {
         videoCounts.put(videoId, count + 1);
         daily.getVideoCounts().put(videoId, dailyCount + 1);
         if (counting) {
-            PlayerManager.increaseVideoCount(player);
+            playerManager.increaseVideoCount(ctx);
         }
         var bonus = video.bonus();
         if (bonus.isEmpty()) {

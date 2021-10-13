@@ -59,11 +59,6 @@ public class PlayerManager extends RedisWrappedManager {
         return Long.toString(System.currentTimeMillis(), 36);
     }
 
-    public static final void increaseVideoCount(Player player) {
-        player.getStatistics().increaseVideoCount();
-        player.getDaily().increaseVideoCount();
-    }
-    
     public static final void increaseGamingCount(Player player) {
         player.getStatistics().increaseGamingCount();
         var dailyGamingCount = player.getDaily().increaseGamingCount();
@@ -468,6 +463,12 @@ public class PlayerManager extends RedisWrappedManager {
     private RedisFuture<String> cacheInRedisAsync(String key, String value) {
         logger.debug("[redis:global] SETEX {} {} {}", key, CACHE_TTL_STR, value);
         return globalRedisAsync().setex(key, CACHE_TTL, value);
+    }
+
+    public void increaseVideoCount(ServiceContext ctx) {
+        var player = ctx.player();
+        player.getStatistics().increaseVideoCount();
+        player.getDaily().increaseVideoCount();
     }
 
 }
