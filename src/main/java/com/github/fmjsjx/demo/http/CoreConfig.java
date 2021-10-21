@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.github.fmjsjx.demo.http.ServerProperties.HTTPClientMode;
+import com.github.fmjsjx.libcommon.util.NumberUtil;
 import com.github.fmjsjx.libcommon.util.RuntimeUtil;
 import com.github.fmjsjx.libnetty.http.client.DefaultHttpClient;
 import com.github.fmjsjx.libnetty.http.client.HttpClient;
@@ -29,13 +30,15 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 public class CoreConfig {
 
     @Bean(name = "workerExecutor", destroyMethod = "shutdown")
-    public ExecutorService workerExecutor() {
-        // core pool size = CPU
-        var corePoolSize = Math.max(1, RuntimeUtil.availableProcessors());
-        // maximum pool size = CPU * 16
-        var maximumPoolSize = RuntimeUtil.availableProcessors() * 16;
-        return new ThreadPoolExecutor(corePoolSize, maximumPoolSize, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
-                new DefaultThreadFactory("worker"));
+    public ExecutorService workerExecutor(ServerProperties properties) {
+        // default core pool size = CPU x 8
+        var corePoolSize = NumberUtil.optionalInt(properties.getWorkerThreads())
+                .orElseGet(() -> RuntimeUtil.availableProcessors() * 8);
+        var maximumPoolSize = corePoolSize;
+        var executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, 60, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(), new DefaultThreadFactory("worker"));
+        executor.allowCoreThreadTimeOut(true);
+        return executor;
     }
 
     @Bean(name = "workerPool", destroyMethod = "shutdown")

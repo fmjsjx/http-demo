@@ -5,6 +5,7 @@ logging:
 
 server:
   io-threads: 1
+  worker-threads: 2
   ssl:
     enabled: false
   http-client-mode: simple

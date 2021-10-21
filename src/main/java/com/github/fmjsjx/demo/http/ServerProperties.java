@@ -16,6 +16,11 @@ public class ServerProperties {
      * the number of available processors.
      */
     private Integer ioThreads;
+    /**
+     * Number of worker threads. The default is 8 times the the number of available
+     * processors.
+     */
+    private Integer workerThreads;
 
     @NestedConfigurationProperty
     private SslProperties ssl;
@@ -30,7 +35,7 @@ public class ServerProperties {
      */
     private Mode mode = Mode.SECONDARY;
 
-    private HTTPClientMode httpClientMode = HTTPClientMode.DEFAULT;
+    private HTTPClientMode httpClientMode = HTTPClientMode.SIMPLE;
 
     /**
      * Server mode Enumeration class.
