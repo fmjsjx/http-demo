@@ -5,6 +5,7 @@ import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_XML;
 
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +23,11 @@ import com.github.fmjsjx.demo.http.util.XmlUtil;
 import com.github.fmjsjx.libcommon.json.JsoniterLibrary;
 import com.github.fmjsjx.libcommon.util.RandomUtil;
 import com.github.fmjsjx.libnetty.handler.ssl.SslContextProviders;
-import com.github.fmjsjx.libnetty.http.client.DefaultHttpClient;
 import com.github.fmjsjx.libnetty.http.client.HttpClient;
 import com.github.fmjsjx.libnetty.http.client.HttpClient.Response;
 import com.github.fmjsjx.libnetty.http.client.HttpContentHandlers;
 import com.github.fmjsjx.libnetty.http.client.HttpContentHolders;
+import com.github.fmjsjx.libnetty.http.client.SimpleHttpClient;
 
 import io.netty.handler.codec.http.QueryStringEncoder;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -55,9 +56,8 @@ public class WeChatSdkClient implements InitializingBean, DisposableBean {
         try (var keyCertChainInputStream = getClass().getResourceAsStream("/wechat/apiclient_cert.pem");
                 var keyInputStream = getClass().getResourceAsStream("/wechat/apiclient_key_pkcs8.pem")) {
             var sslContext = SslContextBuilder.forClient().keyManager(keyCertChainInputStream, keyInputStream).build();
-            globalWechatMchHttpClient = DefaultHttpClient.builder().ioThreads(1)
-                    .sslContextProvider(SslContextProviders.simple(sslContext)).enableCompression()
-                    .maxCachedSizeEachDomain(4).build();
+            globalWechatMchHttpClient = SimpleHttpClient.builder().ioThreads(1)
+                    .sslContextProvider(SslContextProviders.simple(sslContext)).enableCompression().build();
         }
     }
 
@@ -84,7 +84,8 @@ public class WeChatSdkClient implements InitializingBean, DisposableBean {
         log.debug("[WeChat] get access token, uri = {}", uri);
         var sendTime = System.currentTimeMillis();
         try {
-            var resp = globalHttpClient.request(uri).get().send(HttpContentHandlers.ofString());
+            var resp = globalHttpClient.request(uri).get().sendAsync(HttpContentHandlers.ofString())
+                    .orTimeout(60, TimeUnit.SECONDS).get();
             var millis = System.currentTimeMillis() - sendTime;
             sdkWechatLogger.info("Get Access Token: {} <<< {} {} ms - {}", uri, resp.status(), millis, resp.content());
             if (resp.statusCode() != 200) {
@@ -121,7 +122,8 @@ public class WeChatSdkClient implements InitializingBean, DisposableBean {
         log.debug("[WeChat] get userinfo, uri = {}", uri);
         var sendTime = System.currentTimeMillis();
         try {
-            var resp = globalHttpClient.request(uri).get().send(HttpContentHandlers.ofString());
+            var resp = globalHttpClient.request(uri).get().sendAsync(HttpContentHandlers.ofString())
+                    .orTimeout(60, TimeUnit.SECONDS).get();
             var millis = System.currentTimeMillis() - sendTime;
             sdkWechatLogger.info("Get UserInfo: {} <<< {} {} ms - {}", uri, resp.status(), millis, resp.content());
             if (resp.statusCode() != 200) {
@@ -191,7 +193,7 @@ public class WeChatSdkClient implements InitializingBean, DisposableBean {
         try {
             var resp = globalWechatMchHttpClient.request(uri).contentType(APPLICATION_XML)
                     .header(ACCEPT, APPLICATION_XML).post(HttpContentHolders.ofUtf8(body))
-                    .send(HttpContentHandlers.ofString());
+                    .sendAsync(HttpContentHandlers.ofString()).orTimeout(60, TimeUnit.SECONDS).get();
             var millis = System.currentTimeMillis() - sendTime;
             sdkWechatLogger.info("Post Transfer: {} >>> {} <<< {} {} ms - {}", uri, body, resp.status(), millis,
                     resp.content());
