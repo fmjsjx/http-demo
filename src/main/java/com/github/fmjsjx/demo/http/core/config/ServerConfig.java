@@ -14,6 +14,8 @@ import lombok.ToString;
 @ToString
 public class ServerConfig {
 
+    private static final String DEFAULT_CLIENT_ARCODE_SECRET = "2z3x4c5v";
+
     private static final ServerConfig DEFAULT_INSTANCE = new ServerConfig();
 
     private static final AtomicReference<ServerConfig> INSTANCE_REF = new AtomicReference<>(DEFAULT_INSTANCE);
@@ -30,6 +32,10 @@ public class ServerConfig {
         return getInstance().cash();
     }
 
+    public static final AdvertConfig advertConfig() {
+        return getInstance().advert();
+    }
+
     public static final ServerConfig set(ServerConfig config) {
         return INSTANCE_REF.getAndSet(config);
     }
@@ -44,16 +50,19 @@ public class ServerConfig {
 
     final SystemConfig system;
     final CashConfig cash;
+    final AdvertConfig advert;
 
     @JsonCreator
     public ServerConfig(@JsonProperty(value = "system", required = false) SystemConfig system,
-            @JsonProperty(value = "cash", required = false) CashConfig cash) {
+            @JsonProperty(value = "cash", required = false) CashConfig cash,
+            @JsonProperty(value = "advert", required = true) AdvertConfig advert) {
         this.system = Optional.ofNullable(system).orElseGet(SystemConfig::new);
         this.cash = Optional.ofNullable(cash).orElseGet(CashConfig::new);
+        this.advert = advert;
     }
 
     ServerConfig() {
-        this(null, null);
+        this(null, null, new AdvertConfig(DEFAULT_CLIENT_ARCODE_SECRET));
     }
 
     public SystemConfig system() {
@@ -62,6 +71,10 @@ public class ServerConfig {
 
     public CashConfig cash() {
         return cash;
+    }
+
+    public AdvertConfig advert() {
+        return advert;
     }
 
     @ToString
@@ -163,6 +176,22 @@ public class ServerConfig {
 
         public boolean wechatEnabled() {
             return wechatEnabled;
+        }
+
+    }
+
+    @ToString
+    public static final class AdvertConfig {
+
+        final String clientArcodeSecret;
+
+        @JsonCreator
+        public AdvertConfig(@JsonProperty(value = "client-arcode-secret", required = true) String clientArcodeSecret) {
+            this.clientArcodeSecret = clientArcodeSecret;
+        }
+
+        public String clientArcodeSecret() {
+            return clientArcodeSecret;
         }
 
     }

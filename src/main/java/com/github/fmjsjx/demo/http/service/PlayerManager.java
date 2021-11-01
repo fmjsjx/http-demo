@@ -1,11 +1,14 @@
 package com.github.fmjsjx.demo.http.service;
 
-import static com.github.fmjsjx.demo.http.api.Constants.Events.*;
-import static com.mongodb.client.model.Filters.*;
+import static com.github.fmjsjx.demo.http.api.Constants.Events.CROSS_DAY;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
@@ -26,6 +29,7 @@ import com.github.fmjsjx.demo.http.exception.ConcurrentlyUpdateException;
 import com.github.fmjsjx.demo.http.sdk.PartnerUserInfo;
 import com.github.fmjsjx.demo.http.util.ConfigUtil;
 import com.github.fmjsjx.libcommon.json.Jackson2Library;
+import com.github.fmjsjx.libcommon.redis.RedisUtil;
 import com.github.fmjsjx.libcommon.util.RandomUtil;
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.client.MongoCollection;
@@ -294,6 +298,20 @@ public class PlayerManager extends RedisWrappedManager {
         return tryLock(key, value, timeout, maxWait);
     }
 
+    public CompletionStage<Optional<RedisLock>> tryLockAsync(int uid, int timeout, Executor executor) {
+        var key = toRedisLockKey(uid, LOCK_SCOPE_GLOBAL);
+        var value = generateLockValue(uid);
+        return tryLockAsync(key, value, timeout);
+    }
+
+    public CompletionStage<Optional<RedisLock>> tryLockAsync(int uid, String scope, int timeout, Executor executor) {
+        var key = toRedisLockKey(uid, scope);
+        var value = generateLockValue(uid);
+        logger.debug("[redis:global] SET {} {} NX EX {}", key, value, timeout);
+        return RedisUtil.tryLock(globalRedisAsync(), key, value, timeout)
+                .thenApplyAsync(ok -> toGlobalLock(key, value, ok), executor);
+    }
+
     public RedisLock lock(int uid, int timeout) {
         return lock(uid, LOCK_SCOPE_GLOBAL, timeout);
     }
@@ -327,6 +345,50 @@ public class PlayerManager extends RedisWrappedManager {
         return tryLock(uid, scope, timeout).orElseThrow(exceptionSupplier);
     }
 
+    public CompletionStage<RedisLock> lockAsync(int uid, int timeout, long maxWait) {
+        return lockAsync(uid, LOCK_SCOPE_GLOBAL, timeout, maxWait, ApiErrors::clickTooQuick);
+    }
+
+    public CompletionStage<RedisLock> lockAsync(int uid, int timeout, long maxWait,
+            Supplier<? extends RuntimeException> exceptionSupplier) {
+        return lockAsync(uid, LOCK_SCOPE_GLOBAL, timeout, maxWait, exceptionSupplier);
+    }
+
+    public CompletionStage<RedisLock> lockAsync(int uid, String scope, int timeout, long maxWait,
+            Supplier<? extends RuntimeException> exceptionSupplier) {
+        var key = toRedisLockKey(uid, scope);
+        var value = generateLockValue(uid);
+        logger.debug("[redis:global] SET {} {} NX EX {}", key, value, timeout);
+        return RedisUtil.tryLock(globalRedisAsync(), key, value, timeout, maxWait).thenApply(ok -> {
+            if (ok) {
+                return toGlobalLock(key, value);
+            }
+            throw exceptionSupplier.get();
+        });
+    }
+
+    public CompletionStage<RedisLock> lockAsync(int uid, int timeout, long maxWait, Executor executor) {
+        return lockAsync(uid, LOCK_SCOPE_GLOBAL, timeout, maxWait, executor, ApiErrors::clickTooQuick);
+    }
+
+    public CompletionStage<RedisLock> lockAsync(int uid, int timeout, long maxWait, Executor executor,
+            Supplier<? extends RuntimeException> exceptionSupplier) {
+        return lockAsync(uid, LOCK_SCOPE_GLOBAL, timeout, maxWait, executor, exceptionSupplier);
+    }
+
+    public CompletionStage<RedisLock> lockAsync(int uid, String scope, int timeout, long maxWait, Executor executor,
+            Supplier<? extends RuntimeException> exceptionSupplier) {
+        var key = toRedisLockKey(uid, scope);
+        var value = generateLockValue(uid);
+        logger.debug("[redis:global] SET {} {} NX EX {}", key, value, timeout);
+        return RedisUtil.tryLock(globalRedisAsync(), key, value, timeout, maxWait, executor).thenApplyAsync(ok -> {
+            if (ok) {
+                return toGlobalLock(key, value);
+            }
+            throw exceptionSupplier.get();
+        }, executor);
+    }
+
     public <R> R autoRetry(IntFunction<R> action) {
         return autoRetry(action, ApiErrors::dataAccessError);
     }
@@ -346,6 +408,7 @@ public class PlayerManager extends RedisWrappedManager {
         var token = ctx.token();
         var system = systemConfig();
         if (updateCas(ctx)) {
+            businessLogManager.logEventsAsync(ctx.eventLogs());
             if (system.usePlayerCache()) {
                 if (system.playerCacheMode() == CacheMode.REDIS) {
                     // update REDIS cache when update success

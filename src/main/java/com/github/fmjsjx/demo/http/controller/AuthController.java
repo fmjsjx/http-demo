@@ -101,20 +101,18 @@ public class AuthController {
         }
         var now = LocalDateTime.now();
         var token = tokenManager.createToken(account, params, ip, now);
-        return token.lock(() -> {
-            businessLogManager.logEventAsync(token, Auth.LOGIN, LoginData.create(token));
-            var lock = playerManager.lock(account.getUid(), 15, 60_000, ApiErrors::dataAccessError);
-            return lock.supplyThenUnlock(() -> {
-                var player = account.getRegister() == 1 ? playerManager.createGuestPlayer(token)
-                        : playerManager.getGuestPlayer(token);
-                player = onPlayerLoggedIn(token, player);
-                checkForCache(token, player);
-                var result = loginResult(token, player);
-                result.setGuestId(account.getGuestId());
-                var data = ResultData.create(result).sync(player).force();
-                log.debug("[api:auth] Guest Login result: {}", data);
-                return ApiResult.ok(data);
-            });
+        businessLogManager.logEventAsync(token, Auth.LOGIN, LoginData.create(token));
+        var lock = playerManager.lock(account.getUid(), 15, 60_000, ApiErrors::dataAccessError);
+        return lock.supplyThenUnlock(() -> {
+            var player = account.getRegister() == 1 ? playerManager.createGuestPlayer(token)
+                    : playerManager.getGuestPlayer(token);
+            player = onPlayerLoggedIn(token, player);
+            checkForCache(token, player);
+            var result = loginResult(token, player);
+            result.setGuestId(account.getGuestId());
+            var data = ResultData.create(result).sync(player).force();
+            log.debug("[api:auth] Guest Login result: {}", data);
+            return ApiResult.ok(data);
         });
     }
 
@@ -172,20 +170,18 @@ public class AuthController {
         var now = LocalDateTime.now();
         var token = tokenManager.createToken(account, params, ip, now);
         var user = weChatSdkClient.getUserInfoAsync(accessTokenResponse);
-        return token.lock(() -> {
-            businessLogManager.logEventAsync(token, Auth.LOGIN, LoginData.create(token));
-            var lock = playerManager.lock(account.getUid(), 15, 60_000, ApiErrors::dataAccessError);
-            return lock.supplyThenUnlock(() -> {
-                var player = account.getRegister() == 1 ? playerManager.createPlayer(token, user)
-                        : playerManager.getPlayer(token, user);
-                player = onPlayerLoggedIn(token, player, user.getNickname(), user.getHeadimgurl());
-                checkForCache(token, player);
-                var result = loginResult(token, player);
-                result.setOpenid(account.getOpenid());
-                var data = ResultData.create(result).sync(player).force();
-                log.debug("[api:auth] WeChat Login result: {}", data);
-                return ApiResult.ok(data);
-            });
+        businessLogManager.logEventAsync(token, Auth.LOGIN, LoginData.create(token));
+        var lock = playerManager.lock(account.getUid(), 15, 60_000, ApiErrors::dataAccessError);
+        return lock.supplyThenUnlock(() -> {
+            var player = account.getRegister() == 1 ? playerManager.createPlayer(token, user)
+                    : playerManager.getPlayer(token, user);
+            player = onPlayerLoggedIn(token, player, user.getNickname(), user.getHeadimgurl());
+            checkForCache(token, player);
+            var result = loginResult(token, player);
+            result.setOpenid(account.getOpenid());
+            var data = ResultData.create(result).sync(player).force();
+            log.debug("[api:auth] WeChat Login result: {}", data);
+            return ApiResult.ok(data);
         });
     }
 
@@ -229,20 +225,17 @@ public class AuthController {
         });
         var now = LocalDateTime.now();
         var token = tokenManager.createToken(account, params, ip, now);
-        return token.lock(() -> {
-            var lock = playerManager.lock(account.getUid(), 15, 60_000L, ApiErrors::dataAccessError);
-            return lock.supplyThenUnlock(() -> {
-                var player = playerManager.findPlayer(token.gid(), token.uid())
-                        .orElseThrow(ApiErrors::requireWechatCode);
-                businessLogManager.logEventAsync(token, Auth.LOGIN, LoginData.create(token));
-                player = onPlayerLoggedIn(token, player);
-                checkForCache(token, player);
-                var result = loginResult(token, player);
-                result.setOpenid(account.getOpenid());
-                var data = ResultData.create(result).sync(player).force();
-                log.debug("[api:auth] WeChat Login result: {}", data);
-                return ApiResult.ok(data);
-            });
+        var lock = playerManager.lock(account.getUid(), 15, 60_000L, ApiErrors::dataAccessError);
+        return lock.supplyThenUnlock(() -> {
+            var player = playerManager.findPlayer(token.gid(), token.uid()).orElseThrow(ApiErrors::requireWechatCode);
+            businessLogManager.logEventAsync(token, Auth.LOGIN, LoginData.create(token));
+            player = onPlayerLoggedIn(token, player);
+            checkForCache(token, player);
+            var result = loginResult(token, player);
+            result.setOpenid(account.getOpenid());
+            var data = ResultData.create(result).sync(player).force();
+            log.debug("[api:auth] WeChat Login result: {}", data);
+            return ApiResult.ok(data);
         });
     }
 

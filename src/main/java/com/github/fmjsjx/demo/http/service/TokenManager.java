@@ -12,9 +12,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
@@ -342,7 +340,6 @@ public class TokenManager extends RedisWrappedManager implements InitializingBea
         private final LocalDateTime loginTime;
         private final Set<String> features;
 
-        private transient final Lock lock = new ReentrantLock();
         private transient final ConcurrentMap<Object, Object> properties = new ConcurrentHashMap<>(4);
 
         @JsonCreator
@@ -503,18 +500,6 @@ public class TokenManager extends RedisWrappedManager implements InitializingBea
         @Override
         public boolean removeProperty(Object key, Object value) {
             return properties.remove(key, value);
-        }
-
-        @Override
-        public AuthToken lock() {
-            lock.lock();
-            return this;
-        }
-
-        @Override
-        public AuthToken unlock() {
-            lock.unlock();
-            return this;
         }
 
     }

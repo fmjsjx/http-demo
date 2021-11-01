@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 
+import com.github.fmjsjx.demo.http.api.Constants.ClientFeatures;
 import com.github.fmjsjx.demo.http.core.log.EventLog;
 import com.github.fmjsjx.demo.http.core.log.ItemLog;
 import com.github.fmjsjx.demo.http.entity.Account;
@@ -58,6 +58,10 @@ public interface AuthToken {
         return getFeatures().contains(feature);
     }
 
+    default boolean clientArcode() {
+        return getFeatures().contains(ClientFeatures.CLIENT_ARCODE);
+    }
+
     default int toRegisterDays(LocalDate today) {
         return (int) toRegisterDate().until(today, ChronoUnit.DAYS) + 1;
     }
@@ -76,28 +80,6 @@ public interface AuthToken {
 
     default boolean hasProperty(Object key) {
         return property(key).isPresent();
-    }
-
-    AuthToken lock();
-
-    AuthToken unlock();
-
-    default void lock(Runnable action) {
-        lock();
-        try {
-            action.run();
-        } finally {
-            unlock();
-        }
-    }
-
-    default <R> R lock(Supplier<R> supplier) {
-        lock();
-        try {
-            return supplier.get();
-        } finally {
-            unlock();
-        }
     }
 
     <T> Optional<T> property(Object key);

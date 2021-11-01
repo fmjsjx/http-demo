@@ -10,7 +10,10 @@ public interface RedisWrapped<K, V> {
 
     LuaScript<Long> INCREX_SCRIPT = LuaScript.forNumber(
             "local n = redis.call('incr', KEYS[1]) if n == 1 then redis.call('expire', KEYS[1], ARGV[1]) end return n");
-    
+
+    LuaScript<Boolean> SADDEX_SCRIPT = LuaScript.forBoolean(
+            "local n = redis.call('sadd', KEYS[1], ARGV[1]) if redis.call('ttl', KEYS[1]) == -1 then redis.call('expire', KEYS[1], ARGV[2]) end return n");
+
     static String KEY_IDENTITY_MAP = "identity:map";
 
     StatefulRedisConnection<K, V> globalRedisConnection();

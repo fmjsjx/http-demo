@@ -70,9 +70,13 @@ public abstract class RedisWrappedManager implements RedisWrapped<String, String
         return toGlobalLock(key, value, ok);
     }
 
+    protected RedisLock toGlobalLock(String key, String value) {
+        return new RedisLock(key, value, this::globalRedisConnection, "global");
+    }
+
     protected Optional<RedisLock> toGlobalLock(String key, String value, boolean ok) {
         if (ok) {
-            return Optional.of(new RedisLock(key, value, this::globalRedisConnection, "global"));
+            return Optional.of(toGlobalLock(key, value));
         }
         return Optional.empty();
     }

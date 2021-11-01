@@ -2,6 +2,7 @@ package com.github.fmjsjx.demo.http.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -18,15 +19,18 @@ import com.github.fmjsjx.demo.http.service.ConfigManager;
 import com.github.fmjsjx.demo.http.service.PlayerManager;
 import com.github.fmjsjx.demo.http.service.VideoManager;
 import com.github.fmjsjx.demo.http.util.ItemUtil;
+import com.github.fmjsjx.libnetty.http.server.annotation.ComponentValue;
 import com.github.fmjsjx.libnetty.http.server.annotation.HttpGet;
 import com.github.fmjsjx.libnetty.http.server.annotation.HttpPath;
 import com.github.fmjsjx.libnetty.http.server.annotation.HttpPost;
 import com.github.fmjsjx.libnetty.http.server.annotation.JsonBody;
 import com.github.fmjsjx.libnetty.http.server.annotation.PathVar;
 import com.github.fmjsjx.libnetty.http.server.annotation.PropertyValue;
+import com.github.fmjsjx.libnetty.http.server.component.WorkerPool;
 import com.github.fmjsjx.libnetty.http.server.exception.SimpleHttpFailureException;
 import com.github.fmjsjx.myboot.http.route.annotation.RouteController;
 
+import io.netty.channel.EventLoop;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,24 +54,25 @@ public class VideosController {
 
     @HttpGet
     @JsonBody
-    public ApiResult get(@PropertyValue AuthToken token, @PathVar("videoId") int videoId) {
-        return token.lock(() -> {
-            var video = configManager.videoBonusShard(token).video(videoId).orElseThrow(() -> noSuchVideo(videoId));
-            log.debug("[api:videos] GET video info: {} <== {}", video, token);
-            if (video.dailyLimit().isEmpty() && video.limit().isEmpty()) {
-                var result = new VideoBonusInfo(video.id(), -1).bonus(video.bonus());
-                var data = ResultData.create(result);
-                log.debug("[api:videos] GET video info result: {}", data);
-                return ApiResult.ok(data);
-            }
-            return playerManager.lock(token.uid(), 5, 10_000).supplyThenUnlock(() -> {
+    public CompletionStage<ApiResult> get(@PropertyValue AuthToken token, @PathVar("videoId") int videoId,
+            @ComponentValue WorkerPool workerPool, EventLoop eventLoop) {
+        var video = configManager.videoBonusShard(token).video(videoId).orElseThrow(() -> noSuchVideo(videoId));
+        log.debug("[api:videos] GET video info: {} <== {}", video, token);
+        if (video.dailyLimit().isEmpty() && video.limit().isEmpty()) {
+            var result = new VideoBonusInfo(video.id(), -1).bonus(video.bonus());
+            var data = ResultData.create(result);
+            log.debug("[api:videos] GET video info result: {}", data);
+            return ApiResult.completedStage(data);
+        }
+        return playerManager.lockAsync(token.uid(), 5, 30, eventLoop).thenApplyAsync(lock -> {
+            return lock.supplyThenUnlock(() -> {
                 var data = playerManager.autoRetry(retryCount -> {
                     return get0(token, video, retryCount);
                 });
                 log.debug("[api:videos] GET video info result: {}", data);
                 return ApiResult.ok(data);
             });
-        });
+        }, workerPool.executor());
     }
 
     ResultData get0(AuthToken token, VideoConfig video, int retryCount) {
@@ -97,12 +102,12 @@ public class VideosController {
 
     @HttpPost("/bonus")
     @JsonBody
-    public ApiResult postBonus(@PropertyValue AuthToken token, @PathVar("videoId") int videoId,
-            @JsonBody ArcodeParams params) {
-        return token.lock(() -> {
-            var video = configManager.videoBonusShard(token).video(videoId).orElseThrow(() -> noSuchVideo(videoId));
+    public CompletionStage<ApiResult> postBonus(@PropertyValue AuthToken token, @PathVar("videoId") int videoId,
+            @JsonBody ArcodeParams params, @ComponentValue WorkerPool workerPool, EventLoop eventLoop) {
+        var video = configManager.videoBonusShard(token).video(videoId).orElseThrow(() -> noSuchVideo(videoId));
+        return playerManager.lockAsync(token.uid(), 5, 30, eventLoop).thenApplyAsync(lock -> {
             log.debug("[api:videos] POST video bonus: {} {} <== {}", video, params, token);
-            return playerManager.lock(token.uid(), 10, 30_000).supplyThenUnlock(() -> {
+            return lock.supplyThenUnlock(() -> {
                 var counting = videoManager.ensureArcode(token, params.getArcode());
                 var data = playerManager.autoRetry(retryCount -> {
                     return postBonus0(token, params, video, counting, retryCount);
@@ -110,7 +115,7 @@ public class VideosController {
                 log.debug("[api:videos] GET video info result: {}", data);
                 return ApiResult.ok(data);
             });
-        });
+        }, workerPool.executor());
     }
 
     ResultData postBonus0(AuthToken token, ArcodeParams params, VideoConfig video, boolean counting, int retryCount) {
@@ -154,15 +159,15 @@ public class VideosController {
                 bonus = List.of(policies.switchBonus(player.getWallet().getCoin()).toBox());
             }
         }
-        var itemLogs = ItemUtil.addItems(token, player, bonus, video.sourceId(), video.remark());
+        ItemUtil.addItems(ctx, bonus, video.sourceId(), video.remark());
         playerManager.update(ctx);
-        videoManager.writeOffArcodeAsync(token.uid(), params.getArcode());
+        videoManager.writeOffArcodeAsync(token, params.getArcode());
         if (remaining > 0) {
             remaining--;
         }
         businessLogManager.logEventAsync(token, Videos.bonus(video.name()),
                 Map.of("video_id", video.id(), "count", count + 1, "remaining", remaining, "bonus", bonus));
-        businessLogManager.logItemsAsync(itemLogs);
+        businessLogManager.logItemsAsync(ctx.itemLogs());
         var result = Map.of("id", video.id(), "remaining", remaining, "bonus", bonus);
         return ctx.toResultData(result, retryCount);
     }

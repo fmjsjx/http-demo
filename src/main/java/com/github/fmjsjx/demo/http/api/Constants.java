@@ -31,6 +31,8 @@ public final class Constants {
 
     public static final class ClientFeatures {
 
+        public static final String CLIENT_ARCODE = "client_arcode";
+
         private ClientFeatures() {
         }
     }
@@ -69,7 +71,6 @@ public final class Constants {
          * {@code 100011} 随机金币
          */
         public static final int RANDOM_COIN = 100011;
-
 
         private ItemIds() {
         }

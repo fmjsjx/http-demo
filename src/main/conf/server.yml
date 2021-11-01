@@ -15,3 +15,7 @@ cash:
   guest-enabled: true
   # 游客提现成功率（%），仅在启用游客提现时生效，默认0
   guest-success-rate: 100
+# 广告设置
+advert:
+  # 客户端广告校验码秘钥
+  client-arcode-secret: 2z3x4c5v

@@ -22,6 +22,27 @@ public class BusinessLogManager extends RedisWrappedManager {
     private static final Logger eventLogger = LoggerFactory.getLogger("eventLogger");
     private static final Logger itemLogger = LoggerFactory.getLogger("itemLogger");
 
+    public CompletionStage<Long> logEventsAsync(List<EventLog> eventLogs) {
+        switch (eventLogs.size()) {
+        case 0:
+            return CompletableFuture.completedStage(0L);
+        case 1:
+            return logEventAsync(eventLogs.get(0));
+        default:
+            var key = "biz:" + eventLogs.get(0).getProductId() + ":event";
+            var values = eventLogs.stream().map(o -> Jackson2Library.getInstance().dumps(o.toMap()))
+                    .toArray(String[]::new);
+            logger.debug("[redis:logging] LPUSH {} {}", key, values);
+            for (int i = 0; i < values.length; i++) {
+                var evt = eventLogs.get(i).getEvent();
+                var value = values[i];
+                eventLogger.info("{} - {}", evt, value);
+            }
+            logger.debug("[redis:logging] LPUSH {} {}", key, values);
+            return loggingRedisAsync().lpush(key, values);
+        }
+    }
+
     public RedisFuture<Long> logEventAsync(EventLog eventLog) {
         var key = "biz:" + eventLog.getProductId() + ":event";
         var value = Jackson2Library.getInstance().dumps(eventLog.toMap());
