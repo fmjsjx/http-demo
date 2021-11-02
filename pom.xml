@@ -16,7 +16,7 @@
   <description>A game demo project for HTTP server.</description>
 
   <properties>
-    <java.version>11</java.version>
+    <java.version>17</java.version>
     <netty.version>4.1.69.Final</netty.version>
     <netty-tcnative.version>2.0.44.Final</netty-tcnative.version>
     <libnetty.version>2.2.6</libnetty.version>

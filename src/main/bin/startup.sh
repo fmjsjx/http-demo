@@ -11,7 +11,7 @@ echoHelp()
 }
 
 # java command
-cmd="/usr/lib/jvm/jre-11/bin/java"
+cmd="/usr/lib/jvm/java-17/bin/java"
 
 if [ "x$cmd" = "x" ]; then
   cmd=`type -p java`
@@ -57,7 +57,8 @@ MEM_OPTS="-Xms256M -Xmx256M -XX:MaxDirectMemorySize=128M"
 # GC
 GC_LOG_DIR="logs"
 mkdir -p ${GC_LOG_DIR}
-GC_OPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseZGC"
+GC_OPTS="-XX:+UseZGC"
+#GC_OPTS="-XX:+UseShenandoahGC"
 GC_OPTS="${GC_OPTS} -Xlog:gc:${GC_LOG_DIR}/gc.log"
 
 # CUSTOM
