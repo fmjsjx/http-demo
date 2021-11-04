@@ -33,7 +33,7 @@ public class PreferencesController {
     @JsonBody
     public CompletionStage<ApiResult> getCustom(@PropertyValue AuthToken token, @ComponentValue WorkerPool workerPool,
             EventLoop eventLoop) {
-        return playerManager.lockAsync(token.uid(), 5, 30, eventLoop).thenApplyAsync(lock -> {
+        return playerManager.lockAsync(token.uid(), 5, 30_000, eventLoop).thenApplyAsync(lock -> {
             log.debug("[api:player.references] GET custom: {}", token);
             return lock.supplyThenUnlock(() -> {
                 var data = playerManager.autoRetry(retryCount -> {
@@ -56,7 +56,7 @@ public class PreferencesController {
     @JsonBody
     public CompletionStage<ApiResult> putCustom(@PropertyValue AuthToken token, @StringBody String custom,
             @ComponentValue WorkerPool workerPool, EventLoop eventLoop) {
-        return playerManager.lockAsync(token.uid(), 5, 30, eventLoop).thenApplyAsync(lock -> {
+        return playerManager.lockAsync(token.uid(), 5, 30_000, eventLoop).thenApplyAsync(lock -> {
             log.debug("[api:player.references] PUT custom: {} - {}", custom, token);
             return lock.supplyThenUnlock(() -> {
                 var data = playerManager.autoRetry(retryCount -> {

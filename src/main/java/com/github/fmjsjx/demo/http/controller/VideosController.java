@@ -64,7 +64,7 @@ public class VideosController {
             log.debug("[api:videos] GET video info result: {}", data);
             return ApiResult.completedStage(data);
         }
-        return playerManager.lockAsync(token.uid(), 5, 30, eventLoop).thenApplyAsync(lock -> {
+        return playerManager.lockAsync(token.uid(), 5, 30_000, eventLoop).thenApplyAsync(lock -> {
             return lock.supplyThenUnlock(() -> {
                 var data = playerManager.autoRetry(retryCount -> {
                     return get0(token, video, retryCount);
@@ -105,7 +105,7 @@ public class VideosController {
     public CompletionStage<ApiResult> postBonus(@PropertyValue AuthToken token, @PathVar("videoId") int videoId,
             @JsonBody ArcodeParams params, @ComponentValue WorkerPool workerPool, EventLoop eventLoop) {
         var video = configManager.videoBonusShard(token).video(videoId).orElseThrow(() -> noSuchVideo(videoId));
-        return playerManager.lockAsync(token.uid(), 5, 30, eventLoop).thenApplyAsync(lock -> {
+        return playerManager.lockAsync(token.uid(), 5, 30_000, eventLoop).thenApplyAsync(lock -> {
             log.debug("[api:videos] POST video bonus: {} {} <== {}", video, params, token);
             return lock.supplyThenUnlock(() -> {
                 var counting = videoManager.ensureArcode(token, params.getArcode());
