@@ -38,7 +38,7 @@ public class SelfController {
     @JsonBody
     public CompletionStage<ApiResult> get(@PropertyValue AuthToken token, @ComponentValue WorkerPool workerPool,
             EventLoop eventLoop) {
-        return playerManager.lockAsync(token.uid(), 5, 30, eventLoop).thenApplyAsync(lock -> {
+        return playerManager.lockAsync(token.uid(), 5, 30_000, eventLoop).thenApplyAsync(lock -> {
             log.debug("[api:player] GET player: {}", token);
             return lock.supplyThenUnlock(() -> {
                 var data = playerManager.autoRetry(retryCount -> {
@@ -60,7 +60,7 @@ public class SelfController {
     @HttpPost("/arcodes")
     @JsonBody
     public CompletionStage<ApiResult> postArcodes(@PropertyValue AuthToken token, @JsonBody AdvertParams params,
-            @ComponentValue WorkerPool workerPool, EventLoop eventLoop) {
+            EventLoop eventLoop) {
         return playerManager.tryLockAsync(token.uid(), "arcode", 1, eventLoop).thenApply(lock -> {
             log.debug("[api:player] POST arcodes: {}", token);
             return lock.orElseThrow(ApiErrors::clickTooQuick).supplyThenUnlock(() -> {
