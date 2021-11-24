@@ -6,6 +6,8 @@ import static io.netty.handler.codec.http.HttpMethod.PATCH;
 import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpMethod.PUT;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +75,7 @@ public class Servers implements InitializingBean, DisposableBean {
         httpBossBroup = transportLibrary.createGroup(1, new DefaultThreadFactory("http-boss"));
         var httpProperties = serverProperties.getHttp();
         var server = new DefaultHttpServer("http", httpProperties.getPort());
+        Optional.ofNullable(httpProperties.getAddress()).ifPresent(server::address);
         if (sslEnabled) {
             server.enableSsl(sslContextProvider);
         }

@@ -76,7 +76,8 @@ fi
 SPRING_PROFILES="dev"
 
 SPRING_ARGS="--spring.profiles.active=${SPRING_PROFILES}"
-
+#SPRING_ARGS="${SPRING_ARGS} --server.http.address=127.0.0.1"
+#SPRING_ARGS="${SPRING_ARGS} --server.http.port=80"
 
 # Project Version
 PRG_VERSION="1.0.0"

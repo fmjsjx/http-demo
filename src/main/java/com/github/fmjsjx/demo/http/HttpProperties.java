@@ -1,5 +1,6 @@
 package com.github.fmjsjx.demo.http;
 
+import java.net.InetAddress;
 import java.time.Duration;
 
 import org.springframework.util.unit.DataSize;
@@ -17,6 +18,11 @@ public class HttpProperties {
      * Server HTTP port.
      */
     private int port = 8080;
+
+    /**
+     * Network address to which the server should bind.
+     */
+    private InetAddress address;
 
     /**
      * The number of maximum length for HTTP body content.

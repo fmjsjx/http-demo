@@ -116,8 +116,8 @@
   
   <Loggers>
     <AsyncLogger name="org.springframework.boot" level="info" includeLocation="false" />
-    <AsyncLogger name="com.github.fmjsjx.demo.http" level="info" includeLocation="false" />
     <AsyncLogger name="com.github.fmjsjx" level="info" includeLocation="false" />
+    <AsyncLogger name="com.github.fmjsjx.demo.http" level="info" includeLocation="false" />
     
     <AsyncLogger name="accessLogger" level="info" includeLocation="false" additivity="false">
       <AppenderRef ref="AccessLogRollingFile" />
