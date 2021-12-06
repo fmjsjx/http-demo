@@ -38,6 +38,8 @@ import com.github.fmjsjx.demo.http.core.config.ServerConfig;
 import com.github.fmjsjx.demo.http.core.config.VideoBonusConfig;
 import com.github.fmjsjx.demo.http.core.config.AdvertConfig.AdvertShard;
 import com.github.fmjsjx.demo.http.core.config.BonusPoliciesConfig.BonusPoliciesShard;
+import com.github.fmjsjx.demo.http.core.config.ClientConfig;
+import com.github.fmjsjx.demo.http.core.config.ClientConfig.ClientShard;
 import com.github.fmjsjx.demo.http.core.config.OccurrenceConfig.OccurrenceShard;
 import com.github.fmjsjx.demo.http.core.config.PlayerInitConfig.PlayerInitShard;
 import com.github.fmjsjx.demo.http.core.config.VideoBonusConfig.VideoBonusShard;
@@ -63,6 +65,7 @@ public class ConfigManager implements InitializingBean, DisposableBean {
     private static final String SERVER = "server.yml";
     private static final String ERROR_MESSAGE = "error-message.yml";
 
+    private static final String CLIENT = "client.yml";
     private static final String BONUS_POLICIES = "bonus-policies.yml";
     private static final String VIDEO_BONUS = "video-bonus.yml";
     private static final String OCCURRENCE = "occurrence.yml";
@@ -71,6 +74,7 @@ public class ConfigManager implements InitializingBean, DisposableBean {
 
     private final ConcurrentMap<String, FileInfo> fileInfos = new ConcurrentHashMap<>();
 
+    private final AtomicReference<ClientConfig> clientRef = new AtomicReference<>();
     private final AtomicReference<BonusPoliciesConfig> bonusPoliciesRef = new AtomicReference<>();
     private final AtomicReference<VideoBonusConfig> videoBonusRef = new AtomicReference<>();
     private final AtomicReference<OccurrenceConfig> occurrenceRef = new AtomicReference<>();
@@ -114,6 +118,7 @@ public class ConfigManager implements InitializingBean, DisposableBean {
         initReloadFunction(SERVER, this::loadServerConfig);
         initReloadFunction(ERROR_MESSAGE, this::loadErrorMessage);
 
+        initReloadFunction(CLIENT, this::loadClient);
         initReloadFunction(BONUS_POLICIES, this::loadBonusPolicies);
         initReloadFunction(VIDEO_BONUS, this::loadVideoBonus);
         initReloadFunction(OCCURRENCE, this::loadOccurrence);
@@ -182,6 +187,10 @@ public class ConfigManager implements InitializingBean, DisposableBean {
     private void loadErrorMessage() throws Exception {
         loadConfigFromFile(ERROR_MESSAGE, ErrorMessageConfig::loadFromYaml, ErrorMessageConfig::set);
     }
+    
+    private void loadClient() throws Exception {
+        loadConfigFromFile(CLIENT, ClientConfig::loadFromYaml, clientRef::set);
+    }
 
     private void loadBonusPolicies() throws Exception {
         loadConfigFromFile(BONUS_POLICIES, BonusPoliciesConfig::loadFromYaml, bonusPoliciesRef::set);
@@ -202,25 +211,29 @@ public class ConfigManager implements InitializingBean, DisposableBean {
     private void loadAdvert() throws Exception {
         loadConfigFromFile(ADVERT, AdvertConfig::loadFromYaml, advertRef::set);
     }
+    
+    public ClientShard clientShard(AuthToken token) {
+        return clientRef.get().shard(token);
+    }
 
     public BonusPoliciesShard bonusPoliciesShard(AuthToken token) {
-        return bonusPoliciesRef.get().shard(token.getSlot());
+        return bonusPoliciesRef.get().shard(token);
     }
 
     public VideoBonusShard videoBonusShard(AuthToken token) {
-        return videoBonusRef.get().shard(token.getSlot());
+        return videoBonusRef.get().shard(token);
     }
 
     public OccurrenceShard occurrenceShard(AuthToken token) {
-        return occurrenceRef.get().shard(token.getSlot());
+        return occurrenceRef.get().shard(token);
     }
 
     public PlayerInitShard playerInitShard(AuthToken token) {
-        return playerInitRef.get().shard(token.getSlot());
+        return playerInitRef.get().shard(token);
     }
 
     public AdvertShard advertShard(AuthToken token) {
-        return advertRef.get().shard(token.getSlot());
+        return advertRef.get().shard(token);
     }
 
     public PermutableSslContextProvider sslContextProvider() {

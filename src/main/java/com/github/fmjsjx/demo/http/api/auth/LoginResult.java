@@ -19,5 +19,7 @@ public class LoginResult {
     private long registerTime;
     private int slot;
     private String wlxPlatform;
+    
+    private Object config;
 
 }

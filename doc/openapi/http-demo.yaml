@@ -492,6 +492,10 @@ components:
           description: 分片槽（灰度ID），[0 - 15]
           example: 13
           enum: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+        config:
+          type: object
+          description: 发给客户端的配置信息
+          example: {}
     WeChatLoginParams:
       type: object
       description: 微信登录参数
@@ -571,6 +575,10 @@ components:
           description: 分片槽（灰度ID），[0 - 15]
           example: 13
           enum: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+        config:
+          type: object
+          description: 发给客户端的配置信息
+          example: {}
     Player:
       type: object
       description: 玩家信息

@@ -22,6 +22,7 @@ import com.github.fmjsjx.demo.http.entity.model.Player;
 import com.github.fmjsjx.demo.http.sdk.wechat.WeChatSdkClient;
 import com.github.fmjsjx.demo.http.service.AccountManager;
 import com.github.fmjsjx.demo.http.service.BusinessLogManager;
+import com.github.fmjsjx.demo.http.service.ConfigManager;
 import com.github.fmjsjx.demo.http.service.PlayerManager;
 import com.github.fmjsjx.demo.http.service.TokenManager;
 import com.github.fmjsjx.demo.http.util.ConfigUtil;
@@ -74,6 +75,8 @@ public class AuthController {
     private WeChatSdkClient weChatSdkClient;
     @Autowired
     private WeChatProperties weChatProperties;
+    @Autowired
+    private ConfigManager configManager;
 
     @HttpPost("/{loginType}/login")
     @JsonBody
@@ -139,6 +142,7 @@ public class AuthController {
         result.setRegister(token.getAccount().getRegister());
         result.setRegisterTime(DateTimeUtil.toEpochSecond(token.getAccount().getCreateTime()));
         result.setSlot(token.getSlot());
+        result.setConfig(configManager.clientShard(token).config());
         return result;
     }
 
