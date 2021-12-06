@@ -104,12 +104,11 @@ public class AuthController {
         }
         var now = LocalDateTime.now();
         var token = tokenManager.createToken(account, params, ip, now);
-        businessLogManager.logEventAsync(token, Auth.LOGIN, LoginData.create(token));
         var lock = playerManager.lock(account.getUid(), 15, 60_000, ApiErrors::dataAccessError);
         return lock.supplyThenUnlock(() -> {
             var player = account.getRegister() == 1 ? playerManager.createGuestPlayer(token)
                     : playerManager.getGuestPlayer(token);
-            player = onPlayerLoggedIn(token, player);
+            player = onPlayerLoggedIn(token, player, null, null);
             checkForCache(token, player);
             var result = loginResult(token, player);
             result.setGuestId(account.getGuestId());
@@ -117,10 +116,6 @@ public class AuthController {
             log.debug("[api:auth] Guest Login result: {}", data);
             return ApiResult.ok(data);
         });
-    }
-
-    private Player onPlayerLoggedIn(AuthToken token, Player player) {
-        return onPlayerLoggedIn(token, player, null, null);
     }
 
     private void checkForCache(AuthToken token, Player player) {
@@ -174,7 +169,6 @@ public class AuthController {
         var now = LocalDateTime.now();
         var token = tokenManager.createToken(account, params, ip, now);
         var user = weChatSdkClient.getUserInfoAsync(accessTokenResponse);
-        businessLogManager.logEventAsync(token, Auth.LOGIN, LoginData.create(token));
         var lock = playerManager.lock(account.getUid(), 15, 60_000, ApiErrors::dataAccessError);
         return lock.supplyThenUnlock(() -> {
             var player = account.getRegister() == 1 ? playerManager.createPlayer(token, user)
@@ -210,6 +204,7 @@ public class AuthController {
             }
             login.setIp(token.getIp());
             if (playerManager.updateCas(ctx)) {
+                businessLogManager.logEventAsync(token, Auth.LOGIN, LoginData.create(token, player));
                 return player;
             }
             player = playerManager.findPlayer(token.gid(), token.uid()).orElseThrow(ApiErrors::dataAccessError);
@@ -232,8 +227,7 @@ public class AuthController {
         var lock = playerManager.lock(account.getUid(), 15, 60_000L, ApiErrors::dataAccessError);
         return lock.supplyThenUnlock(() -> {
             var player = playerManager.findPlayer(token.gid(), token.uid()).orElseThrow(ApiErrors::requireWechatCode);
-            businessLogManager.logEventAsync(token, Auth.LOGIN, LoginData.create(token));
-            player = onPlayerLoggedIn(token, player);
+            player = onPlayerLoggedIn(token, player, null, null);
             checkForCache(token, player);
             var result = loginResult(token, player);
             result.setOpenid(account.getOpenid());
