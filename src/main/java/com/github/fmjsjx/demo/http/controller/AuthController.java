@@ -49,15 +49,16 @@ public class AuthController {
                 "Unsupported login type `" + loginType + "`");
     }
 
-    private static final EventLog accountLog(Account account) {
+    private static final EventLog accountLog(LoginParams params, Account account) {
         var eventLog = new EventLog();
-        eventLog.setProductId(account.getProductId());
+        eventLog.setProductId(params.getProductId());
         eventLog.setUid(account.getUid());
-        eventLog.setChannel(account.getChannel());
-        eventLog.setChannelId(account.getChannelId());
-        eventLog.setClientVersion(account.getClientVersion());
-        eventLog.setDeviceId(account.getDeviceId());
+        eventLog.setChannel(params.getChannel());
+        eventLog.setChannelId(params.getChannelId());
+        eventLog.setClientVersion(params.getVersion());
+        eventLog.setDeviceId(params.getDeviceId());
         eventLog.setSlot(account.getSlot());
+        eventLog.setAudit(params.getAudit());
         eventLog.setEvent(Auth.ACCOUNT);
         eventLog.setData(AccountData.create(account));
         return eventLog;
@@ -100,7 +101,7 @@ public class AuthController {
             throw ApiErrors.accountForbidden();
         }
         if (account.getRegister() == 1) {
-            businessLogManager.logEventAsync(accountLog(account));
+            businessLogManager.logEventAsync(accountLog(params, account));
         }
         var now = LocalDateTime.now();
         var token = tokenManager.createToken(account, params, ip, now);
@@ -162,7 +163,7 @@ public class AuthController {
                 throw ApiErrors.accountForbidden();
             }
             if (acc.getRegister() == 1) {
-                businessLogManager.logEventAsync(accountLog(acc));
+                businessLogManager.logEventAsync(accountLog(params, acc));
             }
             return acc;
         });
