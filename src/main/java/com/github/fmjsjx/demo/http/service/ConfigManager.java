@@ -91,8 +91,6 @@ public class ConfigManager implements InitializingBean, DisposableBean {
     public synchronized void afterPropertiesSet() throws Exception {
         initReloadFunctions();
 
-        initConfigurations();
-
         var dir = Paths.get(ConfigUtil.confDir());
 
         var watchService = dir.getFileSystem().newWatchService();
@@ -107,34 +105,25 @@ public class ConfigManager implements InitializingBean, DisposableBean {
     }
 
     private void initReloadFunctions() throws Exception {
-        var reloadFunctions = this.reloadFunctions;
-
         var ssl = serverProperties.getSsl();
         if (ssl != null && ssl.isEnabled()) {
             var fileName = ssl.getKeyCertChainFile();
-            reloadFunctions.put(fileName, reloadAction(fileName, this::loadSsl));
-            loadSsl();
+            initReloadFunction(fileName, this::loadSsl);
         }
 
-        reloadFunctions.put(SERVER, reloadAction(SERVER, this::loadServerConfig));
-        reloadFunctions.put(ERROR_MESSAGE, reloadAction(ERROR_MESSAGE, this::loadErrorMessage));
+        initReloadFunction(SERVER, this::loadServerConfig);
+        initReloadFunction(ERROR_MESSAGE, this::loadErrorMessage);
 
-        reloadFunctions.put(BONUS_POLICIES, reloadAction(BONUS_POLICIES, this::loadBonusPolicies));
-        reloadFunctions.put(VIDEO_BONUS, reloadAction(VIDEO_BONUS, this::loadVideoBonus));
-        reloadFunctions.put(OCCURRENCE, reloadAction(OCCURRENCE, this::loadOccurrence));
-        reloadFunctions.put(PLAYER_INIT, reloadAction(PLAYER_INIT, this::loadPlayerInit));
-        reloadFunctions.put(ADVERT, reloadAction(ADVERT, this::loadAdvert));
+        initReloadFunction(BONUS_POLICIES, this::loadBonusPolicies);
+        initReloadFunction(VIDEO_BONUS, this::loadVideoBonus);
+        initReloadFunction(OCCURRENCE, this::loadOccurrence);
+        initReloadFunction(PLAYER_INIT, this::loadPlayerInit);
+        initReloadFunction(ADVERT, this::loadAdvert);
     }
 
-    private void initConfigurations() throws Exception {
-        loadServerConfig();
-        loadErrorMessage();
-
-        loadBonusPolicies();
-        loadVideoBonus();
-        loadOccurrence();
-        loadPlayerInit();
-        loadAdvert();
+    private void initReloadFunction(String fileName, LoadAction action) throws Exception {
+        action.load();
+        reloadFunctions.put(fileName, reloadAction(fileName, action));
     }
 
     @Override
