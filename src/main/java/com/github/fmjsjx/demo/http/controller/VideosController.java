@@ -13,6 +13,7 @@ import com.github.fmjsjx.demo.http.api.core.ArcodeParams;
 import com.github.fmjsjx.demo.http.api.video.VideoBonusInfo;
 import com.github.fmjsjx.demo.http.core.config.VideoBonusConfig.VideoConfig;
 import com.github.fmjsjx.demo.http.core.log.Events.Videos;
+import com.github.fmjsjx.demo.http.core.log.event.VideoBonus;
 import com.github.fmjsjx.demo.http.core.model.AuthToken;
 import com.github.fmjsjx.demo.http.service.BusinessLogManager;
 import com.github.fmjsjx.demo.http.service.ConfigManager;
@@ -166,7 +167,7 @@ public class VideosController {
             remaining--;
         }
         businessLogManager.logEventAsync(token, Videos.bonus(video.name()),
-                Map.of("video_id", video.id(), "count", count + 1, "remaining", remaining, "bonus", bonus));
+                new VideoBonus(video.id(), count + 1, remaining).bonus(bonus));
         businessLogManager.logItemsAsync(ctx.itemLogs());
         var result = Map.of("id", video.id(), "remaining", remaining, "bonus", bonus);
         return ctx.toResultData(result, retryCount);
