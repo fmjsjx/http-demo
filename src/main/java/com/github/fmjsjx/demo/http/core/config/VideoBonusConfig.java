@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.fmjsjx.demo.http.api.ItemBox;
+import com.github.fmjsjx.demo.http.core.config.VideoBonusConfig.VideoBonusShard;
 import com.github.fmjsjx.libcommon.collection.CollectorUtil;
 import com.github.fmjsjx.libcommon.util.NumberUtil;
 import com.github.fmjsjx.libcommon.yaml.Jackson2YamlLibrary;
@@ -17,7 +18,7 @@ import io.netty.util.collection.IntObjectMap;
 import lombok.ToString;
 
 @ToString
-public class VideoBonusConfig {
+public class VideoBonusConfig implements ShardingConfig<VideoBonusShard> {
 
     static final ConfigObj loadConfigFromYaml(InputStream in) {
         return Jackson2YamlLibrary.getInstance().loads(in, ConfigObj.class);

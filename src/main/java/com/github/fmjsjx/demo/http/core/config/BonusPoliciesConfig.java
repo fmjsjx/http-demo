@@ -3,15 +3,17 @@ package com.github.fmjsjx.demo.http.core.config;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.fmjsjx.demo.http.core.config.BonusPoliciesConfig.BonusPoliciesShard;
 import com.github.fmjsjx.libcommon.yaml.Jackson2YamlLibrary;
 
 import lombok.ToString;
 import lombok.ToString.Exclude;
 
 @ToString
-public class BonusPoliciesConfig {
+public class BonusPoliciesConfig implements ShardingConfig<BonusPoliciesShard> {
 
     static final ConfigObj loadConfigFromYaml(InputStream in) {
         return Jackson2YamlLibrary.getInstance().loads(in, ConfigObj.class);

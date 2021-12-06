@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.fmjsjx.demo.http.core.config.AdvertConfig.AdvertShard;
 import com.github.fmjsjx.libcommon.collection.IntHashSet;
 import com.github.fmjsjx.libcommon.collection.IntSet;
 import com.github.fmjsjx.libcommon.collection.PrimitiveCollections;
@@ -13,7 +14,7 @@ import com.github.fmjsjx.libcommon.yaml.Jackson2YamlLibrary;
 import lombok.ToString;
 
 @ToString
-public class AdvertConfig {
+public class AdvertConfig implements ShardingConfig<AdvertShard> {
 
     static final ConfigObj loadConfigFromYaml(InputStream in) {
         return Jackson2YamlLibrary.getInstance().loads(in, ConfigObj.class);

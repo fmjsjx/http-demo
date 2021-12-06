@@ -7,13 +7,14 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.fmjsjx.demo.http.core.config.OccurrenceConfig.OccurrenceShard;
 import com.github.fmjsjx.libcommon.util.RandomUtil;
 import com.github.fmjsjx.libcommon.yaml.Jackson2YamlLibrary;
 
 import lombok.ToString;
 
 @ToString
-public class OccurrenceConfig {
+public class OccurrenceConfig implements ShardingConfig<OccurrenceShard> {
 
     static final ConfigObj loadConfigFromYaml(InputStream in) {
         return Jackson2YamlLibrary.getInstance().loads(in, ConfigObj.class);
