@@ -42,6 +42,12 @@ public interface AuthToken {
 
     int getSlot();
 
+    int getAudit();
+
+    default boolean audit() {
+        return getAudit() == 1;
+    }
+
     String getImei();
 
     String getOaid();

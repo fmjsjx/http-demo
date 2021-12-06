@@ -332,6 +332,7 @@ public class TokenManager extends RedisWrappedManager implements InitializingBea
         private final String clientVersion;
         private final String deviceId;
         private final int slot;
+        private final int audit;
         private final String imei;
         private final String oaid;
         private final String deviceInfo;
@@ -344,7 +345,7 @@ public class TokenManager extends RedisWrappedManager implements InitializingBea
 
         @JsonCreator
         public AuthTokenImpl(Account account, int productId, String channel, Integer channelId, String ip,
-                String clientVersion, String deviceId, int slot, String imei, String oaid, String deviceInfo,
+                String clientVersion, String deviceId, int slot, int audit, String imei, String oaid, String deviceInfo,
                 String osInfo, LocalDateTime loginTime, List<String> features) {
             this.account = account;
             this.productId = productId;
@@ -354,6 +355,7 @@ public class TokenManager extends RedisWrappedManager implements InitializingBea
             this.clientVersion = clientVersion;
             this.deviceId = deviceId;
             this.slot = slot;
+            this.audit = audit;
             this.imei = imei;
             this.oaid = oaid;
             this.deviceInfo = deviceInfo;
@@ -364,8 +366,9 @@ public class TokenManager extends RedisWrappedManager implements InitializingBea
 
         AuthTokenImpl(Account account, LoginParams params, String ip, LocalDateTime loginTime) {
             this(account, params.getProductId(), params.getChannel(), params.getChannelId(), ip, params.getVersion(),
-                    params.getDeviceId(), DeviceUtil.calculateSlot(params.getDeviceId()), params.getImei(),
-                    params.getOaid(), params.getDeviceInfo(), params.getOsInfo(), loginTime, params.getFeatures());
+                    params.getDeviceId(), DeviceUtil.calculateSlot(params.getDeviceId()), params.getAudit(),
+                    params.getImei(), params.getOaid(), params.getDeviceInfo(), params.getOsInfo(), loginTime,
+                    params.getFeatures());
         }
 
         @Override
@@ -420,6 +423,11 @@ public class TokenManager extends RedisWrappedManager implements InitializingBea
         @Override
         public int getSlot() {
             return slot;
+        }
+        
+        @Override
+        public int getAudit() {
+            return audit;
         }
 
         @Override

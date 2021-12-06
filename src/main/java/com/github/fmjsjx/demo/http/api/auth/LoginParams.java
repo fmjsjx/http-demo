@@ -33,6 +33,7 @@ public class LoginParams {
     private String deviceId;
     private String imei;
     private String oaid;
+    private int audit;
     private String deviceInfo;
     private String osInfo;
     private List<String> features = Collections.emptyList();

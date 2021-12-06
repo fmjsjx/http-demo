@@ -27,6 +27,7 @@ public class EventLog {
     private String clientVersion;
     private String deviceId;
     private int slot;
+    private int audit;
     private String event;
     private Object data;
 
@@ -38,6 +39,7 @@ public class EventLog {
         this.clientVersion = token.getClientVersion();
         this.deviceId = token.getDeviceId();
         this.slot = token.getSlot();
+        this.audit = token.getAudit();
         this.event = event;
         this.data = data;
     }
@@ -52,6 +54,7 @@ public class EventLog {
         map.put("v", clientVersion);
         map.put("d", deviceId);
         map.put("s", Integer.toString(slot));
+        map.put("a", Integer.toString(audit));
         map.put("_e", event);
         map.put("_d", Jackson2Library.getInstance().dumpsToString(data));
         return map;
