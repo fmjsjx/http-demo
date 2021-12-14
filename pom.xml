@@ -27,6 +27,7 @@
     <javassist.version>3.28.0-GA</javassist.version>
     <disruptor.version>3.4.4</disruptor.version>
     <mybatis-spring.version>2.2.0</mybatis-spring.version>
+    <log4j2.version>2.15.0</log4j2.version>
   </properties>
 
   <repositories>
