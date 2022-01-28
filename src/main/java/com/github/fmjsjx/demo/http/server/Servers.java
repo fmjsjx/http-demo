@@ -1,10 +1,6 @@
 package com.github.fmjsjx.demo.http.server;
 
-import static io.netty.handler.codec.http.HttpMethod.DELETE;
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpMethod.PATCH;
-import static io.netty.handler.codec.http.HttpMethod.POST;
-import static io.netty.handler.codec.http.HttpMethod.PUT;
+import static io.netty.handler.codec.http.HttpMethod.*;
 
 import java.util.Optional;
 
@@ -17,8 +13,9 @@ import com.github.fmjsjx.demo.http.ServerProperties;
 import com.github.fmjsjx.demo.http.service.ConfigManager;
 import com.github.fmjsjx.libcommon.util.NumberUtil;
 import com.github.fmjsjx.libcommon.util.RuntimeUtil;
+import com.github.fmjsjx.libnetty.handler.ssl.ChannelSslInitializer;
 import com.github.fmjsjx.libnetty.handler.ssl.SslContextProvider;
-import com.github.fmjsjx.libnetty.http.HttpContentCompressorFactory;
+import com.github.fmjsjx.libnetty.http.HttpContentCompressorProvider;
 import com.github.fmjsjx.libnetty.http.server.DefaultHttpServer;
 import com.github.fmjsjx.libnetty.http.server.HttpServer;
 import com.github.fmjsjx.libnetty.http.server.component.WorkerPool;
@@ -77,11 +74,11 @@ public class Servers implements InitializingBean, DisposableBean {
         var server = new DefaultHttpServer("http", httpProperties.getPort());
         Optional.ofNullable(httpProperties.getAddress()).ifPresent(server::address);
         if (sslEnabled) {
-            server.enableSsl(sslContextProvider);
+            server.enableSsl(ChannelSslInitializer.of(sslContextProvider));
         }
         server.transport(httpBossBroup, workerGroup, transportLibrary.serverChannelClass()).corsConfig(corsConfig)
                 .soBackLog(1024).supportJson().component(workerPool).component(apiErrorHandler)
-                .applyCompressionSettings(HttpContentCompressorFactory.defaultSettings());
+                .applyCompressionOptions(HttpContentCompressorProvider.defaultOptions());
         server.defaultHandlerProvider().addLast(new AccessLogger(new Slf4jLoggerWrapper("accessLogger"),
                 ":method :path :http-version :remote-addr - :status :response-time ms :result-length-humanreadable"))
                 .addLast(PathFilterMiddleware.toFilter("/api/partners", "/api/auth").negate(), tokenVerifier)
