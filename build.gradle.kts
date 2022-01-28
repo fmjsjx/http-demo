@@ -27,16 +27,16 @@ configurations {
 extra["netty.version"] = "4.1.73.Final"
 
 dependencies {
-	implementation(platform("com.github.fmjsjx:libnetty-bom:2.4.2"))
-	implementation(platform("com.github.fmjsjx:libcommon-bom:2.6.1"))
-	implementation(platform("com.github.fmjsjx:myboot-bom:1.1.9"))
-	implementation(platform("com.github.fmjsjx:bson-model-bom:1.4.0"))
+    implementation(platform("com.github.fmjsjx:libnetty-bom:2.4.2"))
+    implementation(platform("com.github.fmjsjx:libcommon-bom:2.6.1"))
+    implementation(platform("com.github.fmjsjx:myboot-bom:1.1.9"))
+    implementation(platform("com.github.fmjsjx:bson-model-bom:1.4.0"))
 
-	compileOnly("org.projectlombok:lombok")
-	annotationProcessor("org.projectlombok:lombok")
-	implementation("org.springframework.boot:spring-boot-starter")
-	implementation("org.springframework.boot:spring-boot-starter-log4j2")
-	implementation("com.lmax:disruptor:3.4.4")
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-log4j2")
+    implementation("com.lmax:disruptor:3.4.4")
     implementation("com.github.fmjsjx:bson-model-core")
     compileOnly("com.github.fmjsjx:bson-model-generator")
     implementation("org.jruby:jruby:9.3.2.0")
@@ -46,7 +46,7 @@ dependencies {
     implementation("com.github.fmjsjx:libcommon-json-jsoniter")
     implementation("org.javassist:javassist:3.28.0-GA")
     implementation("com.github.fmjsjx:libcommon-yaml")
-    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0")
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.1")
     implementation("mysql:mysql-connector-java")
     implementation("com.github.fmjsjx:myboot-starter-redis") {
         exclude(group = "org.apache.commons", module = "commons-pool2")
@@ -58,8 +58,8 @@ dependencies {
     implementation("com.github.fmjsjx:libnetty-http-server")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
     compileOnly("org.springframework.boot:spring-boot-configuration-processor")
-	
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 java {
