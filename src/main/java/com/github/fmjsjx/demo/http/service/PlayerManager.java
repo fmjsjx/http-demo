@@ -6,6 +6,7 @@ import static com.mongodb.client.model.Filters.eq;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
@@ -183,7 +184,7 @@ public class PlayerManager extends RedisWrappedManager {
         return player;
     }
 
-    private Player createPlayer(AuthToken token, String nickname, String faceUrl) {
+    private Player createPlayer(AuthToken token, String nickname, String faceUrl, Map<String, String> attributes) {
         var player = new Player();
         player.setUid(token.uid());
         initPlayer(token, nickname, faceUrl, player);
@@ -262,29 +263,29 @@ public class PlayerManager extends RedisWrappedManager {
         }
     }
 
-    public Player getGuestPlayer(AuthToken token) {
+    public Player getGuestPlayer(AuthToken token, Map<String, String> attributes) {
         // create automatically if not persistent
-        return findPlayer(token.gid(), token.uid()).orElseGet(() -> createGuestPlayer(token));
+        return findPlayer(token.gid(), token.uid()).orElseGet(() -> createGuestPlayer(token, attributes));
     }
 
-    public Player createGuestPlayer(AuthToken token) {
+    public Player createGuestPlayer(AuthToken token, Map<String, String> attributes) {
         try {
-            return createPlayer(token, generateGuestNickname(), "");
+            return createPlayer(token, generateGuestNickname(), "", attributes);
         } catch (DuplicateKeyException e) {
-            return getGuestPlayer(token);
+            return getGuestPlayer(token, attributes);
         }
     }
 
-    public Player getPlayer(AuthToken token, PartnerUserInfo user) {
+    public Player getPlayer(AuthToken token, PartnerUserInfo user, Map<String, String> attributes) {
         // create automatically if not persistent
-        return findPlayer(token.gid(), token.uid()).orElseGet(() -> createPlayer(token, user));
+        return findPlayer(token.gid(), token.uid()).orElseGet(() -> createPlayer(token, user, attributes));
     }
 
-    public Player createPlayer(AuthToken token, PartnerUserInfo user) {
+    public Player createPlayer(AuthToken token, PartnerUserInfo user, Map<String, String> attributes) {
         try {
-            return createPlayer(token, user.nickname(), user.faceUrl());
+            return createPlayer(token, user.nickname(), user.faceUrl(), attributes);
         } catch (DuplicateKeyException e) {
-            return getPlayer(token, user);
+            return getPlayer(token, user, attributes);
         }
     }
 

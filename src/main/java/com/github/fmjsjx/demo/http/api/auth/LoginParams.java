@@ -1,7 +1,7 @@
 package com.github.fmjsjx.demo.http.api.auth;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.github.fmjsjx.libcommon.util.StringUtil;
 
@@ -36,7 +36,8 @@ public class LoginParams {
     private int audit;
     private String deviceInfo;
     private String osInfo;
-    private List<String> features = Collections.emptyList();
+    private List<String> features = List.of();
+    private Map<String, String> attributes = Map.of();
 
     public void validateRequired() {
         if (StringUtil.isEmpty(channel)) {
