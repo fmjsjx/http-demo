@@ -36,6 +36,7 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-log4j2")
+	implementation("com.lmax:disruptor:3.4.4")
     implementation("com.github.fmjsjx:bson-model-core")
     compileOnly("com.github.fmjsjx:bson-model-generator")
     implementation("org.jruby:jruby:9.3.2.0")
