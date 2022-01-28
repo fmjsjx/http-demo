@@ -28,6 +28,7 @@ import com.github.fmjsjx.demo.http.entity.model.Player;
 import com.github.fmjsjx.demo.http.exception.ConcurrentlyUpdateException;
 import com.github.fmjsjx.demo.http.sdk.PartnerUserInfo;
 import com.github.fmjsjx.demo.http.util.ConfigUtil;
+import com.github.fmjsjx.libcommon.collection.ListSet;
 import com.github.fmjsjx.libcommon.json.Jackson2Library;
 import com.github.fmjsjx.libcommon.redis.RedisUtil;
 import com.github.fmjsjx.libcommon.util.RandomUtil;
@@ -205,6 +206,8 @@ public class PlayerManager extends RedisWrappedManager {
         var config = configManager.playerInitShard(token);
         // references
         player.getPreferences().setCustom("");
+        // check features
+        initFeatures(token, player);
         // basic
         var basic = player.getBasic();
         if (nickname != null) {
@@ -240,6 +243,13 @@ public class PlayerManager extends RedisWrappedManager {
         // daily
         var daily = player.getDaily();
         daily.setDay(token.getLoginTime().toLocalDate());
+    }
+
+    private void initFeatures(AuthToken token, Player player) {
+        var featuresShard = configManager.featuresShard(token);
+        var features = ListSet.of(featuresShard.commonFeatures().stream().filter(token::hasFeature)
+                .filter(featuresShard::allowRookie).toArray(String[]::new));
+        player.getPreferences().setFeatures(features);
     }
 
     private void storeBasicInfo(Player player) {
