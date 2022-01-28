@@ -60,6 +60,26 @@ objects:
   - name: custom
     bname: ctm
     type: string
+  - name: features
+    bname: fts
+    type: list-set
+    value: string
+  - name: attributes
+    bname: atr
+    type: simple-map
+    key: string
+    value: string
+  methods:
+  - name: includeFeature
+    type: boolean
+    args:
+    - String feature
+    formula: 'features != null && features.contains(feature)'
+  - name: excludeFeature
+    type: boolean
+    args:
+    - String feature
+    formula: '!includeFeature(feature)'
 - name: BasicInfo
   type: object
   fields:
