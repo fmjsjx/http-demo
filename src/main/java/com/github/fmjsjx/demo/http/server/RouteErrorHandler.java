@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.fmjsjx.demo.http.api.ApiErrors;
 import com.github.fmjsjx.demo.http.exception.ApiErrorException;
+import com.github.fmjsjx.libcommon.json.JsonException;
 import com.github.fmjsjx.libnetty.http.HttpCommonUtil;
 import com.github.fmjsjx.libnetty.http.server.HttpRequestContext;
 import com.github.fmjsjx.libnetty.http.server.HttpResult;
@@ -30,13 +31,17 @@ public class RouteErrorHandler implements ExceptionHandler {
 
     @Override
     public Optional<CompletionStage<HttpResult>> handle(HttpRequestContext ctx, Throwable cause) {
-        if (cause instanceof ApiErrorException) {
-            return Optional.of(handle0(ctx, (ApiErrorException) cause));
+        if (cause instanceof ApiErrorException err) {
+            return Optional.of(handle0(ctx, err));
+        }
+        if (cause instanceof JsonException || cause instanceof IllegalArgumentException) {
+            return Optional.of(ctx.respondBadRequestError(cause));
         }
         if (cause instanceof DataAccessException || cause instanceof MongoException
                 || cause instanceof RedisException) {
             return Optional.of(handle0(ctx, ApiErrors.dataAccessError(cause)));
         }
+        log.error("Unexpected error occurs", cause);
         return Optional.empty();
     }
 

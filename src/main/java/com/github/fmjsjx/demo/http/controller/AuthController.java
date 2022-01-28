@@ -26,6 +26,7 @@ import com.github.fmjsjx.demo.http.service.ConfigManager;
 import com.github.fmjsjx.demo.http.service.PlayerManager;
 import com.github.fmjsjx.demo.http.service.TokenManager;
 import com.github.fmjsjx.demo.http.util.ConfigUtil;
+import com.github.fmjsjx.libcommon.collection.ArrayListSet;
 import com.github.fmjsjx.libcommon.util.DateTimeUtil;
 import com.github.fmjsjx.libcommon.util.StringUtil;
 import com.github.fmjsjx.libnetty.http.server.annotation.HttpPath;
@@ -107,8 +108,9 @@ public class AuthController {
         var token = tokenManager.createToken(account, params, ip, now);
         var lock = playerManager.lock(account.getUid(), 15, 60_000, ApiErrors::dataAccessError);
         return lock.supplyThenUnlock(() -> {
-            var player = account.getRegister() == 1 ? playerManager.createGuestPlayer(token)
-                    : playerManager.getGuestPlayer(token);
+            var attributes = params.getAttributes();
+            var player = account.getRegister() == 1 ? playerManager.createGuestPlayer(token, attributes)
+                    : playerManager.getGuestPlayer(token, attributes);
             player = onPlayerLoggedIn(token, player, null, null);
             checkForCache(token, player);
             var result = loginResult(token, player);
@@ -172,8 +174,9 @@ public class AuthController {
         var user = weChatSdkClient.getUserInfoAsync(accessTokenResponse);
         var lock = playerManager.lock(account.getUid(), 15, 60_000, ApiErrors::dataAccessError);
         return lock.supplyThenUnlock(() -> {
-            var player = account.getRegister() == 1 ? playerManager.createPlayer(token, user)
-                    : playerManager.getPlayer(token, user);
+            var attributes = params.getAttributes();
+            var player = account.getRegister() == 1 ? playerManager.createPlayer(token, user, attributes)
+                    : playerManager.getPlayer(token, user, attributes);
             player = onPlayerLoggedIn(token, player, user.getNickname(), user.getHeadimgurl());
             checkForCache(token, player);
             var result = loginResult(token, player);
@@ -196,6 +199,17 @@ public class AuthController {
             }
             if (StringUtil.isNotBlank(faceUrl)) {
                 basic.setFaceUrl(faceUrl);
+            }
+            // fix features
+            var preferences = player.getPreferences();
+            var featuresShard = configManager.featuresShard(token);
+            var newCommonFeatures = featuresShard.commonFeatures().stream().filter(token::hasFeature)
+                    .filter(preferences::excludeFeature).filter(featuresShard::allowAll).toList();
+            if (!newCommonFeatures.isEmpty()) {
+                var features = new ArrayListSet<String>(preferences.getFeatures().size() + newCommonFeatures.size());
+                features.internalList().addAll(preferences.getFeatures().internalList());
+                features.internalList().addAll(newCommonFeatures);
+                preferences.setFeatures(features);
             }
             // fix login info
             var login = player.getLogin();

@@ -1,0 +1,9 @@
+shards:
+- slots: []
+  # 通用特性列表
+  common-features:
+  - test
+  # 过滤器 默认 NEUTRAL
+  filters:
+    # 测试 
+    test: ACCEPT
