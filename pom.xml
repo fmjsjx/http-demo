@@ -25,7 +25,7 @@
     <jruby.version>9.3.2.0</jruby.version>
     <javassist.version>3.28.0-GA</javassist.version>
     <disruptor.version>3.4.4</disruptor.version>
-    <mybatis-spring.version>2.2.0</mybatis-spring.version>
+    <mybatis-spring.version>2.2.1</mybatis-spring.version>
   </properties>
 
   <repositories>

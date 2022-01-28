@@ -26,7 +26,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 
 @Configuration
 @EnableConfigurationProperties({ AppProperties.class, ServerProperties.class, WeChatProperties.class })
-@MapperScans({ @MapperScan(basePackages = "com.douzi.games.cowboy.dao") })
+@MapperScans({ @MapperScan(basePackages = "com.github.fmjsjx.demo.http.dao") })
 public class CoreConfig {
 
     @Bean(name = "workerExecutor", destroyMethod = "shutdown")
