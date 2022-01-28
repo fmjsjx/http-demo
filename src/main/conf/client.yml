@@ -1,0 +1,5 @@
+shards:
+- slots: []
+  config:
+    # 任何配置
+    anyKey: anyValue
