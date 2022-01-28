@@ -113,4 +113,7 @@ tasks.distZip {
 tasks.distTar {
     compression = Compression.GZIP
     archiveExtension.set("tar.gz")
+    doLast {
+        file("${archiveFile}").renameTo(file("${destinationDirectory}/${rootProject.name}-${rootProject.version}-bin.tar.gz"))
+    }
 }
