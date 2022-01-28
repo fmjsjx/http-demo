@@ -18,6 +18,10 @@ repositories {
 
 configurations {
 	compileOnly.extendsFrom(configurations.annotationProcessor.get())
+	"implementation" {
+	    // using log4j2 must exclude logback
+        exclude(module = "spring-boot-starter-logging")
+    }
 }
 
 extra["netty.version"] = "4.1.73.Final"
@@ -30,9 +34,7 @@ dependencies {
 
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
-	implementation("org.springframework.boot:spring-boot-starter") {
-	    exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
-	}
+	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-log4j2")
     implementation("com.github.fmjsjx:bson-model-core")
     compileOnly("com.github.fmjsjx:bson-model-generator")
@@ -57,7 +59,6 @@ dependencies {
     compileOnly("org.springframework.boot:spring-boot-configuration-processor")
 	
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-
 }
 
 java {
