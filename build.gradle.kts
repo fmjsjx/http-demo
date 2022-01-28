@@ -16,7 +16,11 @@ repositories {
     mavenCentral()
 }
 
-extra["netty.version"] = "4.1.72.Final"
+configurations {
+	compileOnly.extendsFrom(configurations.annotationProcessor.get())
+}
+
+extra["netty.version"] = "4.1.73.Final"
 
 dependencies {
 	implementation(platform("com.github.fmjsjx:libnetty-bom:2.4.2"))
@@ -57,8 +61,6 @@ dependencies {
 }
 
 java {
-    withSourcesJar()
-    withJavadocJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
@@ -74,4 +76,6 @@ tasks.test {
     useJUnitPlatform()
 }
 
-
+tasks.javadoc {
+    enabled = false
+}
