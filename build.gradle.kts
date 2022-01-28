@@ -1,6 +1,7 @@
 plugins {
     java
     id("org.springframework.boot") version "2.6.3"
+    distribution
 }
 
 apply(plugin = "io.spring.dependency-management")
@@ -68,6 +69,29 @@ java {
     }
 }
 
+distributions {
+    main {
+        contents {
+            from("src/main/bin") {
+                filesMatching("*.sh") {
+                    setMode(0b111101101)
+                }
+                filesNotMatching("*.sh") {
+                    setMode(0b110100100)
+                }
+            }
+            into("conf/") {
+                from("src/main/conf")
+                setDirMode(0b111101101)
+                setFileMode(0b110100100)
+            }
+            from(tasks.bootJar) {
+                include("${rootProject.name}-${rootProject.version}.jar")
+            }
+        }
+    }
+}
+
 tasks.compileJava {
     options.encoding = "UTF-8"
     options.release.set(17)
@@ -80,4 +104,13 @@ tasks.test {
 
 tasks.javadoc {
     enabled = false
+}
+
+tasks.distZip {
+    enabled = false
+}
+
+tasks.distTar {
+    compression = Compression.GZIP
+    archiveExtension.set("tar.gz")
 }
