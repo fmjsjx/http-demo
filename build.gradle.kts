@@ -25,13 +25,11 @@ configurations {
     }
 }
 
-extra["netty.version"] = "4.1.73.Final"
-
 dependencies {
     implementation(platform("com.github.fmjsjx:libnetty-bom:2.4.2"))
     implementation(platform("com.github.fmjsjx:libcommon-bom:2.6.1"))
     implementation(platform("com.github.fmjsjx:myboot-bom:1.1.9"))
-    implementation(platform("com.github.fmjsjx:bson-model-bom:1.4.0"))
+    implementation(platform("com.github.fmjsjx:bson-model-bom:1.4.1"))
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

@@ -1,4 +1,4 @@
-package: com.github.fmjsjx.demo.http.entity.model
+java-package: com.github.fmjsjx.demo.http.entity.model
 
 objects:
 - name: Player
