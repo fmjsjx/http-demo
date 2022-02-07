@@ -95,9 +95,24 @@ tasks.compileJava {
     options.release.set(17)
 }
 
+tasks.getByName<ProcessResources>("processResources") {
+    // Automatic Property Expansion with Maven Compatible Solution
+    filesMatching("application*.yml") {
+        val projectInfo = mapOf("project.name"    to "${rootProject.name}",
+                                "project.version" to "${rootProject.version}",
+                                "project.group"   to "${rootProject.group}")
+        filter(org.apache.tools.ant.filters.ReplaceTokens::class, "tokens" to projectInfo)
+    }
+}
+
 tasks.test {
     // Use junit platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks.jar {
+    // Disable plain Jar for Sprint Boot
+    enabled = false
 }
 
 tasks.javadoc {
