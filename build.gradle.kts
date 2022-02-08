@@ -18,9 +18,9 @@ repositories {
 }
 
 configurations {
-	compileOnly.extendsFrom(configurations.annotationProcessor.get())
-	"implementation" {
-	    // using log4j2 must exclude logback
+    compileOnly.extendsFrom(configurations.annotationProcessor.get())
+    "implementation" {
+        // using log4j2 must exclude logback
         exclude(module = "spring-boot-starter-logging")
     }
 }
