@@ -8,7 +8,7 @@ apply(plugin = "io.spring.dependency-management")
 
 group = "com.github.fmjsjx.demo"
 version = "1.0.0-SNAPSHOT"
-description = "A game demo project for HTTP server."
+description = "Game Demo HTTP Server"
 
 repositories {
     maven {
@@ -84,7 +84,7 @@ distributions {
                 setFileMode(0b110100100)
             }
             from(tasks.bootJar) {
-                include("${rootProject.name}-${rootProject.version}.jar")
+                include("${project.name}-${project.version}.jar")
             }
         }
     }
@@ -98,9 +98,10 @@ tasks.compileJava {
 tasks.getByName<ProcessResources>("processResources") {
     // Automatic Property Expansion with Maven Compatible Solution
     filesMatching("application*.yml") {
-        val projectInfo = mapOf("project.name"    to "${rootProject.name}",
-                                "project.version" to "${rootProject.version}",
-                                "project.group"   to "${rootProject.group}")
+        val projectInfo = mapOf("project.artifactId" to "${project.name}",
+                                "project.groupId"    to "${project.group}",
+                                "project.name"       to "${project.description}",
+                                "project.version"    to "${project.version}")
         filter(org.apache.tools.ant.filters.ReplaceTokens::class, "tokens" to projectInfo)
     }
 }
@@ -127,6 +128,6 @@ tasks.distTar {
     compression = Compression.GZIP
     archiveExtension.set("tar.gz")
     doLast {
-        file("${archiveFile}").renameTo(file("${destinationDirectory}/${rootProject.name}-${rootProject.version}-bin.tar.gz"))
+        file("${archiveFile}").renameTo(file("${destinationDirectory}/${project.name}-${project.version}-bin.tar.gz"))
     }
 }
