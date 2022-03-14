@@ -179,6 +179,10 @@ public class ConfigManager implements InitializingBean, DisposableBean {
         sslContextProvider.set(sslContext);
     }
 
+    public PermutableSslContextProvider sslContextProvider() {
+        return sslContextProvider;
+    }
+
     private void loadServerConfig() throws Exception {
         var file = new File(ConfigUtil.confDir(), SERVER);
         if (file.exists()) {
@@ -197,60 +201,56 @@ public class ConfigManager implements InitializingBean, DisposableBean {
         loadConfigFromFile(CLIENT, ClientConfig::loadFromYaml, clientRef::set);
     }
 
+    public ClientShard clientShard(AuthToken token) {
+        return clientRef.get().shard(token);
+    }
+
     private void loadFeatures() throws Exception {
         loadConfigFromFile(FEATURES, FeaturesConfig::loadFromYaml, featuresRef::set);
+    }
+
+    public FeaturesShard featuresShard(AuthToken token) {
+        return featuresRef.get().shard(token);
     }
 
     private void loadBonusPolicies() throws Exception {
         loadConfigFromFile(BONUS_POLICIES, BonusPoliciesConfig::loadFromYaml, bonusPoliciesRef::set);
     }
 
-    private void loadVideoBonus() throws Exception {
-        loadConfigFromFile(VIDEO_BONUS, VideoBonusConfig::loadFromYaml, videoBonusRef::set);
-    }
-
-    private void loadOccurrence() throws Exception {
-        loadConfigFromFile(OCCURRENCE, OccurrenceConfig::loadFromYaml, occurrenceRef::set);
-    }
-
-    private void loadPlayerInit() throws Exception {
-        loadConfigFromFile(PLAYER_INIT, PlayerInitConfig::loadFromYaml, playerInitRef::set);
-    }
-
-    private void loadAdvert() throws Exception {
-        loadConfigFromFile(ADVERT, AdvertConfig::loadFromYaml, advertRef::set);
-    }
-
-    public ClientShard clientShard(AuthToken token) {
-        return clientRef.get().shard(token);
-    }
-    
-    public FeaturesShard featuresShard(AuthToken token) {
-        return featuresRef.get().shard(token);
-    }
-
     public BonusPoliciesShard bonusPoliciesShard(AuthToken token) {
         return bonusPoliciesRef.get().shard(token);
+    }
+
+    private void loadVideoBonus() throws Exception {
+        loadConfigFromFile(VIDEO_BONUS, VideoBonusConfig::loadFromYaml, videoBonusRef::set);
     }
 
     public VideoBonusShard videoBonusShard(AuthToken token) {
         return videoBonusRef.get().shard(token);
     }
 
+    private void loadOccurrence() throws Exception {
+        loadConfigFromFile(OCCURRENCE, OccurrenceConfig::loadFromYaml, occurrenceRef::set);
+    }
+
     public OccurrenceShard occurrenceShard(AuthToken token) {
         return occurrenceRef.get().shard(token);
+    }
+
+    private void loadPlayerInit() throws Exception {
+        loadConfigFromFile(PLAYER_INIT, PlayerInitConfig::loadFromYaml, playerInitRef::set);
     }
 
     public PlayerInitShard playerInitShard(AuthToken token) {
         return playerInitRef.get().shard(token);
     }
 
-    public AdvertShard advertShard(AuthToken token) {
-        return advertRef.get().shard(token);
+    private void loadAdvert() throws Exception {
+        loadConfigFromFile(ADVERT, AdvertConfig::loadFromYaml, advertRef::set);
     }
 
-    public PermutableSslContextProvider sslContextProvider() {
-        return sslContextProvider;
+    public AdvertShard advertShard(AuthToken token) {
+        return advertRef.get().shard(token);
     }
 
     private <CFG> void loadConfigFromFile(String filename, Function<InputStream, CFG> loader, Consumer<CFG> setter)
